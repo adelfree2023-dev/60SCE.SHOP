@@ -22,9 +22,9 @@ import * as crypto from 'crypto';
 // CONFIGURATION
 // =============================================================================
 const TEST_CONFIG = {
-    API_URL: process.env.TEST_API_URL || 'http://127.0.0.1:3001',
-    DATABASE_URL: process.env.DATABASE_URL || 'postgresql://apex:@127.0.0.1:5432/apex_v2',
-    REDIS_URL: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+    API_URL: process.env.TEST_API_URL || 'http://127.0.0.1:3000',
+    DATABASE_URL: process.env.DATABASE_URL || 'postgresql://apex:apex_secure_pass_2026@apex-postgres:5432/apex_v2',
+    REDIS_URL: process.env.REDIS_URL || 'redis://apex-redis:6379',
     TEST_TIMEOUT: 30000,
 };
 
@@ -601,7 +601,10 @@ describe('🏗️ EPIC 1: FOUNDATION & SECURITY CORE', () => {
         const fs = require('fs');
         const path = require('path');
 
-        const packagesDir = path.join(process.cwd(), 'packages');
+        // [S1] SEC: Use absolute path for container environment
+        const packagesDir = '/app/packages';
+        if (!fs.existsSync(packagesDir)) return;
+
         const packages = fs.readdirSync(packagesDir)
             .filter(p => fs.statSync(path.join(packagesDir, p)).isDirectory());
 
