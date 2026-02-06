@@ -22,7 +22,7 @@ import * as crypto from 'crypto';
 // CONFIGURATION
 // =============================================================================
 const TEST_CONFIG = {
-    API_URL: process.env.TEST_API_URL || 'http://localhost:3001',
+    API_URL: process.env.TEST_API_URL || 'http://127.0.0.1:3001',
     DATABASE_URL: process.env.DATABASE_URL || 'postgresql://apex:apex@127.0.0.1:5432/apex',
     REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
     TEST_TIMEOUT: 30000,
