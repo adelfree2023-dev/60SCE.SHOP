@@ -1,0 +1,16 @@
+bun test v1.3.8 (b64edcb4)
+🔍 Execution: S2 Isolation Test
+🌐 Testing Hostname: tenant-a.apex.local
+🔹 Extracted Subdomain: tenant-a
+🔍 Execution: S1 Validation Test
+✅ S1: Environment validated successfully
+🔍 Execution: S6 Rate Limiting Test
+
+tests/security/s2-tenant-isolation.test.ts:
+
+tests/security/s1-env-validation.test.ts:
+
+tests/security/s6-rate-limiting.test.ts:
+❌ S2 Failure (Code 404): {
+  error: "Tenant not found",
+}

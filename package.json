@@ -1,0 +1,31 @@
+{
+    "name": "apex-platform",
+    "private": true,
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "lint": "turbo run lint",
+        "format": "biome format . --write"
+    },
+    "dependencies": {
+        "drizzle-orm": "^0.30.0",
+        "glob": "^13.0.1",
+        "pg": "^8.11.3",
+        "pg-format": "^1.0.4",
+        "postgres": "^3.4.3",
+        "zod": "^3.22.4"
+    },
+    "devDependencies": {
+        "turbo": "^2.0.0",
+        "typescript": "^5.4.0",
+        "@biomejs/biome": "^1.7.0",
+        "@types/node": "^20.0.0",
+        "@types/pg": "^8.11.0",
+        "@types/pg-format": "^1.0.5"
+    },
+    "packageManager": "bun@1.1.0"
+}

@@ -1,0 +1,61 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "globalDependencies": [
+        "**/.env"
+    ],
+    "tasks": {
+        "build": {
+            "dependsOn": [
+                "^build"
+            ],
+            "outputs": [
+                "dist/**",
+                ".next/**",
+                "build/**"
+            ],
+            "cache": true
+        },
+        "lint": {
+            "dependsOn": [
+                "build"
+            ],
+            "cache": true
+        },
+        "test": {
+            "dependsOn": [
+                "build"
+            ],
+            "cache": false,
+            "outputs": [
+                "coverage/**"
+            ]
+        },
+        "dev": {
+            "cache": false,
+            "persistent": true
+        },
+        "type-check": {
+            "dependsOn": [
+                "build"
+            ],
+            "cache": true
+        },
+        "@apex/db#build": {
+            "dependsOn": [
+                "^build"
+            ]
+        },
+        "@apex/security#build": {
+            "dependsOn": [
+                "@apex/db#build"
+            ]
+        },
+        "apps/api#build": {
+            "dependsOn": [
+                "@apex/db#build",
+                "@apex/security#build",
+                "@apex/validators#build"
+            ]
+        }
+    }
+}

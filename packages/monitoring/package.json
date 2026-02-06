@@ -1,0 +1,17 @@
+{
+    "name": "@apex/monitoring",
+    "version": "1.0.0",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "scripts": {
+        "test": "bun test"
+    },
+    "dependencies": {
+        "@nestjs/common": "latest",
+        "@sentry/node": "^7.91.0"
+    },
+    "devDependencies": {
+        "@types/node": "latest",
+        "bun-types": "latest"
+    }
+}

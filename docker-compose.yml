@@ -1,0 +1,152 @@
+version: '3.8'
+
+services:
+  apex-postgres:
+    image: postgres:15-alpine
+    container_name: apex-postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-apex_v2}
+      - POSTGRES_USER=${POSTGRES_USER:-apex}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - AUDIT_SECRET=${AUDIT_SECRET:-this-is-a-very-secure-audit-secret-32-chars}
+    # [CRITICAL-009] Restricted to internal network only
+    # [SEC-FIX-001] Internal only
+    ports:
+      - "5432"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - apex-network
+
+  apex-redis:
+    image: redis:7-alpine
+    container_name: apex-redis
+    restart: always
+    networks:
+      - apex-network
+
+  apex-minio:
+    image: minio/minio:latest
+    container_name: apex-minio
+    restart: always
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-apex}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - apex-network
+
+  apex-api:
+    image: apex-v2-apex-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api-runner
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    container_name: apex-api
+    restart: always
+    env_file: .env
+    depends_on:
+      - apex-postgres
+      - apex-redis
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apex-api.rule=Host(`api.60sec.shop`)"
+      - "traefik.http.routers.apex-api.entrypoints=websecure"
+      - "traefik.http.routers.apex-api.tls=true"
+      - "traefik.http.routers.apex-api.tls.certresolver=myresolver"
+      - "traefik.http.services.apex-api.loadbalancer.server.port=3000"
+    networks:
+      - apex-network
+
+  apex-storefront:
+    image: apex-v2-apex-storefront:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: storefront-runner
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    container_name: apex-storefront
+    restart: always
+    env_file: .env
+    depends_on:
+      - apex-api
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apex-storefront.rule=Host(`60sec.shop`) || Host(`www.60sec.shop`) || HostRegexp(`{subdomain:[a-z0-9-]+}.60sec.shop`)"
+      - "traefik.http.routers.apex-storefront.entrypoints=websecure"
+      - "traefik.http.routers.apex-storefront.tls=true"
+      - "traefik.http.routers.apex-storefront.tls.certresolver=myresolver"
+      - "traefik.http.services.apex-storefront.loadbalancer.server.port=3000"
+    networks:
+      - apex-network
+
+  apex-traefik:
+    image: traefik:v2.10
+    container_name: apex-traefik
+    restart: always
+    command:
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
+      - "--providers.docker=true"
+      - "--providers.docker.network=apex-network"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=admin@60sec.shop"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    # [SEC-FIX-001] Internal only
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./infra/docker/traefik/dynamic:/etc/traefik/dynamic:ro"
+      - "traefik_certs:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - apex-network
+
+  apex-mailpit:
+    image: axllent/mailpit:latest
+    container_name: apex-mailpit
+    restart: always
+    # [SEC-FIX-001] Internal only
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - apex-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  traefik_certs:
+
+
+networks:
+  apex-network:
+    name: apex-network
+    driver: bridge

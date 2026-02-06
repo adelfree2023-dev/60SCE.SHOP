@@ -1,0 +1,32 @@
+# node
+node_modules/
+.npm/
+.bun/
+
+# apps
+.next/
+dist/
+out/
+build/
+
+# env
+.env
+.env.local
+
+# turbo
+.turbo/
+
+# os
+.DS_Store
+thumbs.db
+
+# mobile
+.expo/
+*.jks
+*.p12
+*.key
+*.mobileprovision
+
+# Block commit of secrets
+apps/storefront/sentry.*.config.ts
+!.gitignore

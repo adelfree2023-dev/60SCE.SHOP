@@ -1,0 +1,51 @@
+http:
+  routers:
+    # API Router - Must be before storefront for priority
+    api-router:
+      rule: "Host(`api.60sec.shop`)"
+      service: api-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: myresolver
+      priority: 100
+      middlewares:
+        - headers-cors
+
+    # Storefront wildcard router for all tenant subdomains
+    storefront-router:
+      rule: "HostRegexp(`{subdomain:[a-z0-9-]+}.60sec.shop`)"
+      service: storefront-service
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: myresolver
+      priority: 50
+
+  middlewares:
+    headers-cors:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        accessControlAllowOriginList:
+          - "https://*.60sec.shop"
+        accessControlAllowCredentials: true
+        accessControlAllowHeaders:
+          - "*"
+
+  services:
+    api-service:
+      loadBalancer:
+        servers:
+          - url: "http://apex-api:3000"
+        passHostHeader: true
+
+    storefront-service:
+      loadBalancer:
+        servers:
+          - url: "http://apex-storefront:3002"
+        passHostHeader: true

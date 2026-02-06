@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "strict": true,
+        "baseUrl": ".",
+        "paths": {
+            "@apex/core": [
+                "packages/core/src"
+            ],
+            "@apex/db": [
+                "packages/db/src"
+            ],
+            "@apex/ui": [
+                "packages/ui/src"
+            ],
+            "@apex/auth": [
+                "packages/auth-client/src"
+            ],
+            "@apex/types": [
+                "packages/types/src"
+            ]
+        },
+        "skipLibCheck": true,
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
+        "isolatedModules": true,
+        "esModuleInterop": true
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}

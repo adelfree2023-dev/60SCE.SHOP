@@ -1,0 +1,25 @@
+{
+    "name": "@apex/provisioning",
+    "version": "1.0.0",
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "dependencies": {
+        "@nestjs/common": "^10.0.0",
+        "@nestjs/event-emitter": "^2.0.0",
+        "@apex/audit": "workspace:*",
+        "@apex/config": "workspace:*",
+        "@apex/encryption": "workspace:*",
+        "drizzle-orm": "latest",
+        "pg": "^8.11.0",
+        "pg-format": "^1.0.4",
+        "js-yaml": "^4.1.0"
+    },
+    "devDependencies": {
+        "@nestjs/testing": "^10.0.0",
+        "bun-types": "latest",
+        "@types/pg": "latest",
+        "@types/pg-format": "latest",
+        "@types/node": "latest",
+        "@types/js-yaml": "^4.0.9"
+    }
+}

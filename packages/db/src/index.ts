@@ -1,0 +1,53 @@
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import { env } from "@apex/config";
+import format from 'pg-format';
+import { sql } from "drizzle-orm";
+
+const queryClient = postgres(env.DATABASE_URL);
+export const db = drizzle(queryClient);
+
+/**
+ * [SEC-L4] Secure Tenant Context Switch
+ */
+export async function setSchemaPath(tenantId: string) {
+    // 🛡️ [SEC-L4] Strict Format Validation
+    if (!/^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/.test(tenantId)) {
+        throw new Error('Invalid tenant ID format');
+    }
+
+    // 🛡️ [SEC-L4] Safe Identifier Quoting using pg-format
+    const safeSchema = format('%I', `tenant_${tenantId}`);
+    await db.execute(sql.raw(`SET search_path TO ${safeSchema}, public`));
+}
+
+export async function createTenantSchema(tenantId: string) {
+    if (!/^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/.test(tenantId)) {
+        throw new Error('Invalid tenant ID format');
+    }
+    const safeSchema = format('%I', `tenant_${tenantId}`);
+    await db.execute(sql.raw(`CREATE SCHEMA IF NOT EXISTS ${safeSchema}`));
+}
+
+export const setTenantContext = setSchemaPath; // Alias for backward compatibility
+
+export async function setSchemaPathUnsafe(schemaName: string) {
+    if (!/^[a-z0-9_]+$/.test(schemaName)) {
+        throw new Error('Invalid schema name - SQL injection risk');
+    }
+    const safeSchema = format('%I', schemaName);
+    await db.execute(sql.raw(`SET search_path TO ${safeSchema}, public`));
+}
+
+export function tenantTable(tenantId: string, tableName: string): string {
+    return `"tenant_${tenantId}".${tableName}`;
+}
+
+export * from "drizzle-orm";
+export * from "./schema/audit-logs";
+export * from "./schema/tenants";
+export * from "./schema/addresses";
+export * from "./schema/wallet-transactions";
+export * from "./schema/wishlist";
+export * from "./schema/support-tickets";
+export * from "./schema/user-sessions";

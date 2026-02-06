@@ -1,0 +1,10 @@
+{
+  "preload": [],
+  "exclude": [
+    "**/node_modules/**",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "apps/storefront/src/middleware.ts",
+    "**/*.dto.ts"
+  ]
+}

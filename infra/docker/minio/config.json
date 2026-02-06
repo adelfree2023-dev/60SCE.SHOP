@@ -1,0 +1,11 @@
+{
+    "version": "v33",
+    "storage": {
+        "disks": [
+            "/data"
+        ]
+    },
+    "api": {
+        "requests_max": 250
+    }
+}

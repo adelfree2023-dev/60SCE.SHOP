@@ -1,0 +1,11 @@
+services:
+  apex-api:
+    labels:
+      - "traefik.http.routers.apex-api-unified.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.60sec.shop`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.apex-api-unified.entrypoints=websecure"
+      - "traefik.http.routers.apex-api-unified.tls=true"
+      - "traefik.http.routers.apex-api-unified.tls.certresolver=myresolver"
+      - "traefik.http.routers.apex-api-unified.priority=100"
+      - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.apex-api-unified.middlewares=api-strip"
+      - "traefik.http.services.apex-api.loadbalancer.server.port=3000"
