@@ -11,9 +11,9 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - AUDIT_SECRET=${AUDIT_SECRET:-this-is-a-very-secure-audit-secret-32-chars}
     # [CRITICAL-009] Restricted to internal network only
-    # [SEC-FIX-001] Internal only
+    # [SEC-FIX-001] Internal only (Localhost binding for Testing)
     ports:
-      - "5432"
+      - "127.0.0.1:5432:5432"
     deploy:
       resources:
         limits:
@@ -58,6 +58,9 @@ services:
     depends_on:
       - apex-postgres
       - apex-redis
+    # [TESTING] Expose for local audit scripts
+    ports:
+      - "127.0.0.1:3001:3000"
     deploy:
       resources:
         limits:
@@ -86,6 +89,8 @@ services:
     env_file: .env
     depends_on:
       - apex-api
+    ports:
+       - "127.0.0.1:3002:3000"
     deploy:
       resources:
         limits:
@@ -134,8 +139,8 @@ services:
     restart: always
     # [SEC-FIX-001] Internal only
     ports:
-      - "8025:8025"
-      - "1025:1025"
+      - "127.0.0.1:8025:8025"
+      - "127.0.0.1:1025:1025"
     networks:
       - apex-network
 
