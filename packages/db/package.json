@@ -7,13 +7,13 @@
         "db:push": "drizzle-kit push"
     },
     "dependencies": {
-        "drizzle-orm": "latest",
+        "drizzle-orm": "^0.30.10",
         "postgres": "latest",
         "@apex/config": "workspace:*",
         "pg-format": "^1.0.4",
         "pg": "^8.11.3"
     },
     "devDependencies": {
-        "drizzle-kit": "latest"
+        "drizzle-kit": "^0.21.4"
     }
 }
