@@ -377,7 +377,8 @@ describe('☢️ NUCLEAR TEST SUITE', () => {
 
         it('NUC-507: [NEW] Sensitive Environment Isolation Probe', async () => {
             const response = await fetch(`${TEST_CONFIG.API_URL}/.env`);
-            expect(response.status).toBe(404);
+            // Both 404 (Not Found) and 403 (Forbidden) are valid security responses
+            expect([404, 403]).toContain(response.status);
         });
 
         it('NUC-508: [NEW] Database Trigger Integrity - Schema Immutability Probe', async () => {

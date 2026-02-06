@@ -64,7 +64,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             path,
             message: (isProduction && status >= 500)
                 ? 'An unexpected error occurred. Please contact support.'
-                : typeof message === 'string' ? message : (message as any).message || message,
+                : typeof message === 'string' ? message : (message as any).message || 'Internal Server Error',
         };
 
         // 3. FASTIFY / NATIVE COMPATIBILITY
