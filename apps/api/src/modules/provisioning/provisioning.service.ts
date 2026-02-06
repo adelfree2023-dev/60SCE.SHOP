@@ -64,8 +64,8 @@ export class ProvisioningService {
             const tenantId = tenantRes.rows[0].id;
 
             // 3. Create Schema - [SEC] S2: Using pg-format for safe identifier escaping
-            // [STRICT] Schema name MUST be tenant_{uuid}, not subdomain
-            const schemaName = `tenant_${tenantId}`;
+            // [STRICT] Schema name MUST be tenant_{uuid_with_underscores} per NUC-503
+            const schemaName = `tenant_${tenantId.replace(/-/g, '_')}`;
             await client.query(format('CREATE SCHEMA %I', schemaName));
 
             // 4. Register Owner User

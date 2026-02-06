@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import Redis from 'ioredis';
+import { createClient } from 'redis';
 
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://apex:apex_secure_pass_2026@apex-postgres:5432/apex_v2';
 const REDIS_URL = process.env.REDIS_URL || 'redis://apex-redis:6379';
@@ -24,7 +24,7 @@ async function purge() {
             await pool.query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`);
         }
 
-        console.log('🧹 Purging public tables: tenants, audit_logs');
+        console.log('🧹 Purging public tables: tenants, users, audit_logs');
         await pool.query('TRUNCATE TABLE public.tenants CASCADE');
         await pool.query('TRUNCATE TABLE public.users CASCADE');
         await pool.query('TRUNCATE TABLE public.audit_logs CASCADE');
@@ -36,15 +36,16 @@ async function purge() {
     // 2. Redis Purge
     try {
         console.log('⚡ Purging Redis cache...');
-        const redis = new Redis(REDIS_URL);
-        await redis.flushall();
+        const redis = createClient({ url: REDIS_URL });
+        await redis.connect();
+        await redis.flushAll();
         await redis.quit();
         console.log('✅ Redis flushed.');
     } catch (e: any) {
         console.error('❌ Redis Purge Error:', e.message);
     }
 
-    console.log('✨ [SUCCESS] Environment sanitized. SEC-L4 compliance ready.');
+    console.log('✨ [SUCCESS] Environment sanitized (DB + Redis). SEC-L4 compliance ready.');
 }
 
 purge();

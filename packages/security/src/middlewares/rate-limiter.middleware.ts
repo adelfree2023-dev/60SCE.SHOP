@@ -58,8 +58,8 @@ export class RateLimiterMiddleware implements NestMiddleware {
                     } else if (res.raw && typeof res.raw.setHeader === 'function') {
                         res.raw.setHeader(name, value);
                     }
-                } catch (e) {
-                    this.logger.debug(`Could not set header ${name}: ${e.message}`);
+                } catch (e: any) {
+                    this.logger.debug(`Could not set header ${name}: ${e?.message || 'Unknown error'}`);
                 }
             };
 
