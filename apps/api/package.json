@@ -43,7 +43,6 @@
         "bcryptjs": "^2.4.3",
         "@nestjs/throttler": "^5.1.1",
         "isomorphic-dompurify": "^2.0.0",
-        "isomorphic-dompurify": "^2.0.0",
         "pg-format": "^1.0.4"
     },
     "devDependencies": {
