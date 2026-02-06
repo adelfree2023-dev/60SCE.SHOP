@@ -22,6 +22,14 @@ describe('☢️ NUCLEAR TEST SUITE', () => {
     beforeAll(async () => {
         // 🔒 [SEC-FIX] Standardized secure connection
         pgPool = new Pool({ connectionString: TEST_CONFIG.DATABASE_URL });
+
+        // 🧪 [SELF-HEALING] Ensure vector extension is enabled
+        try {
+            await pgPool.query('CREATE EXTENSION IF NOT EXISTS vector;');
+        } catch (e: any) {
+            console.error('⚠️ Failed to auto-enable pgvector:', e.message);
+        }
+
         const { RedisService } = await import('@apex/redis');
         redisService = new RedisService();
     });
