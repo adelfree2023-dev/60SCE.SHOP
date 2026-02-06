@@ -12,8 +12,9 @@ export const db = drizzle(queryClient);
  */
 export async function setSchemaPath(tenantId: string) {
     // 🛡️ [SEC-L4] Strict Format Validation
-    if (!/^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/.test(tenantId)) {
-        throw new Error('Invalid tenant ID format');
+    // 🛡️ [SEC-L4] Strict UUID Validation (Prevents SQL Injection at entry)
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantId)) {
+        throw new Error('Invalid tenant ID format (must be UUID)');
     }
 
     // 🛡️ [SEC-L4] Safe Identifier Quoting using pg-format
@@ -23,8 +24,8 @@ export async function setSchemaPath(tenantId: string) {
 }
 
 export async function createTenantSchema(tenantId: string) {
-    if (!/^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/.test(tenantId)) {
-        throw new Error('Invalid tenant ID format');
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantId)) {
+        throw new Error('Invalid tenant ID format (must be UUID)');
     }
     const safeSchema = format('%I', `tenant_${tenantId}`);
     await db.execute(sql.raw(`CREATE SCHEMA IF NOT EXISTS ${safeSchema}`));

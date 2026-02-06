@@ -28,6 +28,8 @@ export class IdentityController {
         res.clearCookie('apex_session', {
             path: '/',
             domain: this.cookieDomain,
+            httpOnly: true,
+            secure: true
         });
 
         res.setCookie('apex_session', token, {
@@ -50,7 +52,9 @@ export class IdentityController {
         // @ts-ignore
         res.clearCookie('apex_session', {
             path: '/',
-            domain: this.cookieDomain
+            domain: this.cookieDomain,
+            httpOnly: true,
+            secure: true
         });
         return { success: true };
     }

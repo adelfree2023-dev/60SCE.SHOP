@@ -30,6 +30,9 @@ services:
     restart: always
     networks:
       - apex-network
+    # [SEC-FIX] Expose for host-based testing (User Requirement: Infrastructure Visibility)
+    ports:
+      - "127.0.0.1:6379:6379"
 
   apex-minio:
     image: minio/minio:latest

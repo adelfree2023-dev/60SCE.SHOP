@@ -44,7 +44,14 @@ export class EncryptionService implements OnModuleInit {
      * [SEC] S7: Random salt ensures unique keys per encryption
      */
     async encrypt(plaintext: string): Promise<string> {
-        if (!plaintext) return '';
+        if (plaintext === undefined || plaintext === null) {
+            this.logger.error('Attempted to encrypt undefined/null value - verifying input safety');
+            return ''; // Return empty string for safe handling, or throw if strict
+        }
+        if (typeof plaintext !== 'string') {
+            this.logger.error(`Encryption input invalid type: ${typeof plaintext}`);
+            throw new Error('Encryption failed: Input must be a string');
+        }
         try {
             const salt = randomBytes(SALT_LENGTH);
             const key = await this.deriveKey(this.masterSecret, salt);

@@ -37,6 +37,8 @@ export class AuthController {
             res.clearCookie('apex_session', {
                 path: '/',
                 domain: this.cookieDomain,
+                httpOnly: true,
+                secure: true
             });
 
             const { user, token } = await this.identityService.login(email, password, tenantId);
@@ -75,6 +77,8 @@ export class AuthController {
         res.clearCookie('apex_session', {
             path: '/',
             domain: this.cookieDomain,
+            httpOnly: true,
+            secure: true
         });
         return res.send({ success: true });
     }
