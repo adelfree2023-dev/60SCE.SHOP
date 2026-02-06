@@ -49,22 +49,15 @@ export class RateLimiterMiddleware implements NestMiddleware {
                 await client.expire(hashedKey, 60);
             }
 
-            const setHeader = (name: string, value: string) => {
-                try {
-                    if (typeof res.header === 'function') {
-                        res.header(name, value);
-                    } else if (typeof res.setHeader === 'function') {
-                        res.setHeader(name, value);
-                    } else if (res.raw && typeof res.raw.setHeader === 'function') {
-                        res.raw.setHeader(name, value);
-                    }
-                } catch (e: any) {
-                    this.logger.debug(`Could not set header ${name}: ${e?.message || 'Unknown error'}`);
-                }
-            };
+            const raw = res.raw || res;
+            if (typeof res.header === 'function') {
+                res.header('X-RateLimit-Limit', limit.toString());
+                res.header('X-RateLimit-Remaining', Math.max(0, limit - current).toString());
+            } else if (typeof raw.setHeader === 'function') {
+                raw.setHeader('X-RateLimit-Limit', limit.toString());
+                raw.setHeader('X-RateLimit-Remaining', Math.max(0, limit - current).toString());
+            }
 
-            setHeader('X-RateLimit-Limit', limit.toString());
-            setHeader('X-RateLimit-Remaining', Math.max(0, limit - current).toString());
 
             if (current > limit) {
                 const requestId = req.requestId || req.headers['x-request-id'] || 'unknown';

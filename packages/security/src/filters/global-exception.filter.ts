@@ -67,20 +67,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
                 : typeof message === 'string' ? message : (message as any).message || 'Internal Server Error',
         };
 
-        // 3. FASTIFY / NATIVE COMPATIBILITY
+        // 3. FASTIFY / NATIVE COMPATIBILITY (Optimized for performance/no-hang)
         try {
+            const raw = response.raw || response;
             if (typeof response.status === 'function' && typeof response.send === 'function') {
-                // Fastified Response (Standard for our NestJS setup)
                 return response.status(status).send(errorResponse);
-            } else if (typeof response.code === 'function' && typeof response.send === 'function') {
-                // Alternative Fastify signature
-                return response.code(status).send(errorResponse);
-            } else {
-                // Raw Proxy/Stream Response (Fallback)
-                const res = response as any;
-                res.statusCode = status;
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(errorResponse));
+            } else if (typeof raw.setHeader === 'function') {
+                raw.statusCode = status;
+                raw.setHeader('Content-Type', 'application/json');
+                raw.end(JSON.stringify(errorResponse));
             }
         } catch (err: any) {
             this.logger.error(`Failed to dispatch error response: ${err.message}`);

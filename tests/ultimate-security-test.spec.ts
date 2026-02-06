@@ -200,7 +200,6 @@ describe('🛡️ S3: INPUT VALIDATION (Zero Trust)', () => {
                 })
             });
 
-            // Should not succeed with SQL injection
             expect(response.status).not.toBe(200);
 
             // Should not expose database errors
