@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import { Pool } from 'pg';
-import Redis from 'ioredis';
+
 import * as crypto from 'crypto';
 
 const TEST_CONFIG = {
@@ -17,16 +17,17 @@ const TEST_CONFIG = {
 
 describe('☢️ NUCLEAR TEST SUITE', () => {
     let pgPool: Pool;
-    let redisClient: Redis;
+    let redisService: any;
 
     beforeAll(async () => {
         pgPool = new Pool({ connectionString: TEST_CONFIG.DATABASE_URL });
-        redisClient = new Redis(TEST_CONFIG.REDIS_URL);
+        const { RedisService } = await import('@apex/redis');
+        redisService = new RedisService();
     });
 
     afterAll(async () => {
         await pgPool.end();
-        await redisClient.quit();
+        // RedisService handles its own lifecycle or we can ignore quit if it's managed
     });
 
     // =================================================================
@@ -41,7 +42,7 @@ describe('☢️ NUCLEAR TEST SUITE', () => {
         });
 
         it('NUC-002: Redis must be responsive', async () => {
-            const pong = await redisClient.ping();
+            const pong = await redisService.ping();
             expect(pong).toBe('PONG');
         });
 
@@ -191,8 +192,10 @@ describe('☢️ NUCLEAR TEST SUITE', () => {
 
         it('NUC-302: Redis operations must complete in < 20ms', async () => {
             const start = Date.now();
-            await redisClient.set('test:key', 'value');
-            await redisClient.get('test:key');
+            // Using internal redis client from service for raw ops if needed
+            const client = redisService.getClient();
+            await client.set('test:key', 'value');
+            await client.get('test:key');
             const duration = Date.now() - start;
 
             expect(duration).toBeLessThan(20); // Relaxed slightly for Windows dev environment
