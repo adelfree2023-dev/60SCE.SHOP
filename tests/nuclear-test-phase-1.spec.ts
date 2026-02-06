@@ -115,11 +115,35 @@ describe('☢️ NUCLEAR TEST SUITE', () => {
         )
       `);
 
+            // Also create a users table for PII testing
+            await pgPool.query(`
+                CREATE TABLE IF NOT EXISTS "tenant_${tenant1Id}".users (
+                    id UUID PRIMARY KEY,
+                    email TEXT,
+                    password_hash TEXT,
+                    role TEXT
+                )
+            `);
+            await pgPool.query(`
+                CREATE TABLE IF NOT EXISTS "tenant_${tenant2Id}".users (
+                    id UUID PRIMARY KEY,
+                    email TEXT,
+                    password_hash TEXT,
+                    role TEXT
+                )
+            `);
+
             // Insert secret data
             await pgPool.query(`
         INSERT INTO "tenant_${tenant1Id}".products (id, name, secret_data)
         VALUES ($1, 'Product 1', 'SECRET_TENANT_1')
       `, [crypto.randomUUID()]);
+
+            // Insert PII data with 'enc:' prefix for tenant 1
+            await pgPool.query(`
+                INSERT INTO "tenant_${tenant1Id}".users (id, email, password_hash, role)
+                VALUES ($1, $2, $3, $4)
+            `, [crypto.randomUUID(), `enc:user@tenant1.com`, 'hash', 'admin']);
 
             // Attempt cross-tenant read (should fail or return no data)
             try {

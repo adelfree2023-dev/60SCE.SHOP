@@ -37,8 +37,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
         // [SEC-019] Safe Serialization to prevent hangs on circular references
         const safeException = exception instanceof Error
-            ? { message: exception.message, stack: exception.stack }
-            : typeof exception === 'object' ? JSON.parse(JSON.stringify(exception, Object.getOwnPropertyNames(exception))) : exception;
+            ? { message: exception.message, name: exception.name }
+            : typeof exception === 'string' ? exception : 'Unknown Error';
 
         const logPayload = {
             requestId,
@@ -51,9 +51,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         };
 
         if (status >= 500) {
-            this.logger.error(`🚨 Fatal Error [${requestId}]: ${JSON.stringify(logPayload)}`);
+            this.logger.error(`🚨 Fatal Error [${requestId}]: ${status} ${path}`);
         } else {
-            this.logger.warn(`⚠️ Warning [${requestId}]: ${JSON.stringify(logPayload)}`);
+            this.logger.warn(`⚠️ Warning [${requestId}]: ${status} ${path}`);
         }
 
         // 2. [FIX-013] PRODUCTION ERROR MASKING
@@ -70,16 +70,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         // 3. FASTIFY / NATIVE COMPATIBILITY
         try {
             if (typeof response.status === 'function' && typeof response.send === 'function') {
-                const setHeader = (name: string, value: string) => {
-                    // Use the response object directly, which is 'response' here, not 'res'
-                    if (typeof response.header === 'function') (response as any).header(name, value);
-                    else if (typeof response.setHeader === 'function') (response as any).setHeader(name, value);
-                };
                 // Fastified Response (Standard for our NestJS setup)
-                response.status(status).send(errorResponse);
+                return response.status(status).send(errorResponse);
             } else if (typeof response.code === 'function' && typeof response.send === 'function') {
                 // Alternative Fastify signature
-                response.code(status).send(errorResponse);
+                return response.code(status).send(errorResponse);
             } else {
                 // Raw Proxy/Stream Response (Fallback)
                 const res = response as any;

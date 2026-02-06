@@ -50,9 +50,17 @@ export class RateLimiterMiddleware implements NestMiddleware {
             }
 
             const setHeader = (name: string, value: string) => {
-                if (typeof res.header === 'function') res.header(name, value);
-                else if (typeof res.setHeader === 'function') res.setHeader(name, value);
-                else if (res.raw && typeof res.raw.setHeader === 'function') res.raw.setHeader(name, value);
+                try {
+                    if (typeof res.header === 'function') {
+                        res.header(name, value);
+                    } else if (typeof res.setHeader === 'function') {
+                        res.setHeader(name, value);
+                    } else if (res.raw && typeof res.raw.setHeader === 'function') {
+                        res.raw.setHeader(name, value);
+                    }
+                } catch (e) {
+                    this.logger.debug(`Could not set header ${name}: ${e.message}`);
+                }
             };
 
             setHeader('X-RateLimit-Limit', limit.toString());
