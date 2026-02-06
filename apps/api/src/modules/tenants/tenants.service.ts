@@ -42,7 +42,7 @@ export class TenantsService {
             if (tenant.owner_email) {
                 try {
                     tenant.owner_email = await this.encryptionService.decryptDbValue(tenant.owner_email);
-                } catch (e) {
+                } catch (e: any) {
                     this.logger.error(`Failed to decrypt email for tenant ${tenant.id}: ${e.message}`);
                 }
             }

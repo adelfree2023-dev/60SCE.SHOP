@@ -50,7 +50,7 @@ export class PiiSupportService {
             await this.pool.query(
                 'INSERT INTO public.audit_logs (action, actor_id, target_id, metadata) VALUES ($1, $2, $3, $4)',
                 ['PII_DECRYPTION', adminId, tenantId, JSON.stringify({ reason, field: 'owner_email' })]
-            ).catch(err => this.logger.error(`Failed to write audit log: ${err.message}`));
+            ).catch((err: any) => this.logger.error(`Failed to write audit log: ${err.message}`));
 
             return decryptedEmail;
         } catch (error: any) {

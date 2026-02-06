@@ -132,7 +132,7 @@ export class WalletService {
                 'INSERT INTO public.audit_logs (action, actor_id, target_id, metadata, tenant_id) VALUES ($1, $2, $3, $4, $5)',
                 [action, actorId, targetId, JSON.stringify(metadata), tenantId]
             );
-        } catch (e) {
+        } catch (e: any) {
             this.logger.error(`Failed to write audit log: ${e.message}`);
         }
     }
