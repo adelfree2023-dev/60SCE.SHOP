@@ -4,7 +4,7 @@
     "main": "./src/index.ts",
     "types": "./src/index.ts",
     "scripts": {
-        "db:push": "drizzle-kit push:pg --schema=./src/schema/index.ts --url=$DATABASE_URL"
+        "db:push": "drizzle-kit push"
     },
     "dependencies": {
         "drizzle-orm": "latest",
