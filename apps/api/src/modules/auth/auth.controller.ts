@@ -40,6 +40,7 @@ export class AuthController {
                 domain: this.cookieDomain,
                 httpOnly: true,
                 secure: true,
+                sameSite: 'lax',
                 expires: new Date(0)
             });
 
@@ -81,6 +82,7 @@ export class AuthController {
             domain: this.cookieDomain,
             httpOnly: true,
             secure: true,
+            sameSite: 'lax',
             expires: new Date(0)
         });
         return res.send({ success: true });

@@ -71,7 +71,7 @@ async function bootstrap() {
                 callback(null, true);
             } else {
                 logger.warn(`🚫 CORS BLOCKED: ${origin}`);
-                callback(new Error('Not allowed by CORS'), false);
+                callback(null, false);
             }
         },
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

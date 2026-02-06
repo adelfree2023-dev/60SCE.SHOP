@@ -31,6 +31,7 @@ export class IdentityController {
             domain: this.cookieDomain,
             httpOnly: true,
             secure: true,
+            sameSite: 'lax',
             expires: new Date(0)
         });
 
@@ -57,6 +58,7 @@ export class IdentityController {
             domain: this.cookieDomain,
             httpOnly: true,
             secure: true,
+            sameSite: 'lax',
             expires: new Date(0)
         });
         return { success: true };

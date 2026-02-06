@@ -16,6 +16,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { HealthController } from './common/controllers/health.controller';
 import { ConfigModule } from '@nestjs/config';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module';
+import { BlueprintsModule } from './modules/blueprints/blueprints.module';
 
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
@@ -37,6 +38,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
         CustomerModule,
         AdminModule,
         SuperAdminModule,
+        BlueprintsModule,
     ],
     controllers: [HealthController],
     providers: [

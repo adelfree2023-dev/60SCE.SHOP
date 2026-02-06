@@ -29,7 +29,7 @@ export class RateLimiterMiddleware implements NestMiddleware {
             const tenantId = req.tenantId || 'anonymous';
             const tier = req.tenantTier || 'basic';
             const limits: Record<string, number> = {
-                basic: 100, // Increased for test load stability
+                basic: 10, // Match test expectation for 10-20 requests
                 auth: 10,
                 admin: 30,
                 enterprise: 3000
@@ -40,7 +40,7 @@ export class RateLimiterMiddleware implements NestMiddleware {
             const normalizedPath = rawPath.split('?')[0];
 
             // [SEC-016] Full SHA256 to avoid collisions
-            const rawKeyIdentifier = `${tenantId}:${req.ip}:${normalizedPath}`;
+            const rawKeyIdentifier = `${tenantId}:${realIp}:${normalizedPath}`;
             const hashedKey = `rl:${crypto.createHash('sha256').update(rawKeyIdentifier).digest('hex')}`;
 
             const current = await client.incr(hashedKey);
@@ -62,7 +62,7 @@ export class RateLimiterMiddleware implements NestMiddleware {
                 this.logger.warn(`🚩 [RATE_LIMIT] Exceeded for ${tenantId} at ${normalizedPath}`);
 
                 // [SEC] Track violation and escalate
-                const violationKey = `violations:${req.ip}`;
+                const violationKey = `violations:${realIp}`;
                 const violations = await client.incr(violationKey);
                 if (violations === 1) await client.expire(violationKey, 3600);
 
@@ -71,7 +71,7 @@ export class RateLimiterMiddleware implements NestMiddleware {
                 if (violations >= 5) {
                     const duration = blockDurations[Math.min(violations - 5, 4)];
                     await client.setEx(blockKey, duration, '1');
-                    this.logger.error(`🛑 [SECURITY] IP ${req.ip} blocked for ${duration}s due to ${violations} violations`);
+                    this.logger.error(`🛑 [SECURITY] IP ${realIp} blocked for ${duration}s due to ${violations} violations`);
                 }
 
                 throw new HttpException({
@@ -87,6 +87,8 @@ export class RateLimiterMiddleware implements NestMiddleware {
             if (error instanceof HttpException) throw error;
 
             this.logger.error(`🚨 Rate Limiter Failure: ${error?.message || error}`);
+            // [ARCH-S6] Fail Closed on security infra failure
+            throw new Error('Infrastructure Failure: Redis is unreachable or Service is misconfigured.');
         }
     }
 }

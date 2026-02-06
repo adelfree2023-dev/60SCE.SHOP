@@ -89,6 +89,7 @@ export class IdentityService {
         const attempts = await redis.get(lockoutKey);
 
         if (attempts && parseInt(attempts) >= 5) {
+            this.logger.warn(`🔒 Account locked: ${email}`);
             throw new ForbiddenException('Account locked due to too many failed attempts. Try again later.');
         }
 
@@ -278,12 +279,10 @@ export class IdentityService {
     async getProfileWithStats(user: any) {
         if (!user || user.authenticated === false) return { authenticated: false };
 
-        // Resolve schema name from tenant_id (assuming subdomain is used as schema name or derived)
         const tenantRes = await this.pool.query('SELECT subdomain FROM public.tenants WHERE id = $1', [user.tenantId]);
         const schema = tenantRes.rows[0]?.subdomain ? `tenant_${tenantRes.rows[0].subdomain.replace(/-/g, '_')}` : 'public';
 
         try {
-            // 1. Fetch Orders Stats
             const ordersRes = await this.pool.query(`
                 SELECT 
                     COUNT(*) FILTER (WHERE status NOT IN ('delivered', 'cancelled')) as "activeOrders",
@@ -292,12 +291,10 @@ export class IdentityService {
                 WHERE o.customer_id = $1
             `, [user.id]);
 
-            // 2. Fetch Wallet Balance
             const walletRes = await this.pool.query(`
                 SELECT balance FROM ${schema}.wallets WHERE customer_id = $1
             `, [user.id]);
 
-            // 3. Fetch Wishlist Count
             const wishlistRes = await this.pool.query(`
                 SELECT COUNT(*) as count FROM ${schema}.wishlist_items WHERE customer_id = $1
             `, [user.id]);
@@ -316,7 +313,6 @@ export class IdentityService {
             };
         } catch (error: any) {
             this.logger.error(`Failed to fetch stats for user ${user.id} in schema ${schema}: ${error.message}`);
-            // Return basic profile if stats fail (e.g. missing tables)
             return {
                 ...user,
                 authenticated: true,
