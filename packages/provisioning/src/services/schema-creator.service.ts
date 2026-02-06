@@ -47,7 +47,7 @@ export class SchemaCreatorService {
       // 🔒 SEC-L4 Fix: Use pg-format for parameterized identifiers (Prevents SQL Injection)
       const safeSchemaName = format('%I', schemaName);
 
-      await this.pool.query(format('CREATE SCHEMA IF NOT EXISTS %s', safeSchemaName));
+      await this.pool.query(format('CREATE SCHEMA IF NOT EXISTS %I', schemaName));
 
       // Grant privileges using the same safe approach
       await this.pool.query(format('GRANT ALL ON SCHEMA %s TO CURRENT_USER', safeSchemaName));
@@ -90,7 +90,8 @@ export class SchemaCreatorService {
     const safeSchemaName = format('%I', schemaName);
 
     // 🔒 SEC-L4: Use parameterized query for setting search_path
-    await this.pool.query(format('SET search_path TO %s, public', safeSchemaName));
+    // Use %I for identifiers (Schema Name) to ensure correct quoting
+    await this.pool.query(format('SET search_path TO %I, public', schemaName));
     this.logger.debug(`Search path set to: ${schemaName}`);
   }
 

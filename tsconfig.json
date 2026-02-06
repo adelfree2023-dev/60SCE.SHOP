@@ -22,6 +22,18 @@
             ],
             "@apex/types": [
                 "packages/types/src"
+            ],
+            "@apex/config": [
+                "packages/config/src"
+            ],
+            "@apex/encryption": [
+                "packages/encryption/src"
+            ],
+            "@apex/redis": [
+                "packages/redis/src"
+            ],
+            "@apex/security": [
+                "packages/security/src"
             ]
         },
         "skipLibCheck": true,

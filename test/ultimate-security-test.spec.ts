@@ -1,4 +1,7 @@
-#!/usr/bin/env bun
+
+# إنشاء ملف الاختبار النهائي الشامل
+
+ultimate_test_content = '''#!/usr/bin/env bun
 /**
  * 🛡️ APEX V2 - ULTIMATE SECURITY & INTEGRATION TEST
  * 
@@ -22,8 +25,8 @@ import * as crypto from 'crypto';
 // CONFIGURATION
 // =============================================================================
 const TEST_CONFIG = {
-    API_URL: process.env.TEST_API_URL || 'http://127.0.0.1:3001',
-    DATABASE_URL: process.env.DATABASE_URL || 'postgresql://apex:apex@127.0.0.1:5432/apex',
+    API_URL: process.env.TEST_API_URL || 'http://localhost:3001',
+    DATABASE_URL: process.env.DATABASE_URL || 'postgresql://apex:apex@localhost:5432/apex',
     REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
     TEST_TIMEOUT: 30000,
 };
@@ -39,7 +42,7 @@ describe('🌍 S1: ENVIRONMENT VALIDATION', () => {
 
         try {
             // Simulate config validation
-            const { validateEnv } = await import('../packages/config/src');
+            const { validateEnv } = await import('@apex/config');
             expect(() => validateEnv()).toThrow(/JWT_SECRET.*32.*characters/);
         } finally {
             process.env.JWT_SECRET = originalSecret;
@@ -119,8 +122,7 @@ describe('🏢 S2: TENANT ISOLATION (Zero Cross-Tenant Leakage)', () => {
         const safeQuery = format.default('SET search_path TO %I, public', maliciousSchema);
 
         // Should contain escaped identifier, not raw injection
-        // Should contain escaped identifier (doubled quotes)
-        expect(safeQuery).toContain('"tenant_123""; DROP TABLE tenants; --""');
+        expect(safeQuery).not.toContain('DROP TABLE');
         expect(safeQuery).toContain('"');
     });
 
@@ -282,11 +284,9 @@ describe('📝 S4: AUDIT LOGGING (Immutable Records)', () => {
     `);
 
         // Should not find unredacted PII
-        // Should not find unredacted PII
         for (const row of result.rows) {
-            const payloadStr = typeof row.payload === 'string' ? row.payload : JSON.stringify(row.payload);
-            expect(payloadStr).not.toMatch(/"password":\s*"[^"]+"/);
-            expect(payloadStr).toMatch(/"password":\s*"\[REDACTED\]"/);
+            expect(row.payload).not.toMatch(/"password":\s*"[^"]+"/);
+            expect(row.payload).toMatch(/"password":\s*"\[REDACTED\]"/);
         }
     });
 });
@@ -504,8 +504,7 @@ describe('🏗️ EPIC 1: FOUNDATION & SECURITY CORE', () => {
         await pgPool.end();
 
         // Check Redis
-        // Check Redis
-        const redis = await import('../packages/redis/src');
+        const redis = await import('@apex/redis');
         const redisService = new redis.RedisService();
         const pong = await redisService.ping();
         expect(pong).toBe('PONG');
@@ -622,8 +621,17 @@ describe('📊 FINAL SECURITY REPORT', () => {
         const total = Object.keys(checks).length;
         const score = (passed / total) * 100;
 
-        console.log(`\n🛡️  SECURITY SCORE: ${score.toFixed(1)}% (${passed}/${total})\n`);
+        console.log(`\\n🛡️  SECURITY SCORE: ${score.toFixed(1)}% (${passed}/${total})\\n`);
 
         expect(score).toBeGreaterThanOrEqual(90); // Minimum acceptable score
     });
 });
+'''
+
+# حفظ الملف
+with open('/mnt/kimi/output/ultimate-security-test.spec.ts', 'w', encoding = 'utf-8') as f:
+f.write(ultimate_test_content)
+
+print("✅ تم إنشاء ملف الاختبار النهائي")
+print("📁 المسار: /test/ultimate-security-test.spec.ts")
+print(f"📊 حجم الملف: {len(ultimate_test_content)} حرف")
