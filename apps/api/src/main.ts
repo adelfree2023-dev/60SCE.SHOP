@@ -54,6 +54,9 @@ async function bootstrap() {
         'http://localhost:3000',
         'http://localhost:3001',
         'http://localhost:3002',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:3001',
+        'http://127.0.0.1:3002',
         /^https?:\/\/([a-z0-9-]+\.)?apex\.localhost$/
     ];
 
@@ -71,7 +74,7 @@ async function bootstrap() {
                 callback(null, true);
             } else {
                 logger.warn(`🚫 CORS BLOCKED: ${origin}`);
-                callback(null, false);
+                callback(new Error('Not allowed by CORS'), false);
             }
         },
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

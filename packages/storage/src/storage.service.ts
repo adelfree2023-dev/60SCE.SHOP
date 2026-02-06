@@ -16,7 +16,7 @@ export class StorageService implements OnModuleInit {
 
     constructor() {
         this.s3 = new S3Client({
-            endpoint: process.env.MINIO_ENDPOINT || 'http://localhost:9000',
+            endpoint: process.env.MINIO_ENDPOINT || 'http://127.0.0.1:9000',
             region: 'us-east-1',
             credentials: {
                 accessKeyId: process.env.MINIO_ACCESS_KEY || 'admin',

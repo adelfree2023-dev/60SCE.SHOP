@@ -66,8 +66,18 @@ echo ""
 echo "🧪 Running security tests..."
 echo "================================================"
 
-bun test ultimate-security-test.spec.ts --timeout 60000 || {
-    echo "${RED}❌ Security tests failed${NC}"
+bun tests/quick-security-check.ts || {
+    echo "${RED}❌ Quick security check failed${NC}"
+    exit 1
+}
+
+bun test tests/ultimate-security-test.spec.ts --timeout 60000 || {
+    echo "${RED}❌ Ultimate security tests failed${NC}"
+    exit 1
+}
+
+bun test tests/nuclear-test-phase-1.spec.ts --timeout 60000 || {
+    echo "${RED}❌ Nuclear tests failed${NC}"
     exit 1
 }
 
