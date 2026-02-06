@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
@@ -18,6 +18,13 @@ async function bootstrap() {
 
     // [FIX] Cast to any to bypass strict FastifyPluginCallback mismatch with NestJS wrapper
     await app.register(fastifyCookie as any);
+
+    // [SEC] S3: Global Input Validation (Zero Trust)
+    app.useGlobalPipes(new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+    }));
 
     const configService = app.get(ConfigService);
     const jwtSecret = configService.get<string>('JWT_SECRET');

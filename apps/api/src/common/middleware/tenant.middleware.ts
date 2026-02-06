@@ -83,11 +83,12 @@ export class TenantMiddleware implements NestMiddleware {
                         client = await this.pool.connect();
                         // [SEC-L4] Strict UUID Validation (Prevents SQL Injection at entry)
                         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantInfo.id)) {
+                            this.logger.error(`🚨 DETECTED MALICIOUS TENANT ID: ${tenantInfo.id}`);
                             throw new Error('Invalid tenant ID format (must be UUID)');
                         }
 
-                        // Safe concatenation - STRICTLY using UUID (id) for schema
-                        const schemaName = 'tenant_' + tenantInfo.id;
+                        // Safe identifier interpolation using %I for schema name
+                        const schemaName = 'tenant_' + tenantInfo.id.replace(/-/g, '_');
                         await client.query(format('SET search_path TO %I, public', schemaName));
                     }
                     return client;

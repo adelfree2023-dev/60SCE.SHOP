@@ -188,7 +188,7 @@ export class StorefrontService {
 
         // 2. Table Whitelisting (prevent accessing public.users etc via dynamic SQL)
         const allowedTables = ['banners', 'products', 'categories', 'promotions', 'testimonials', 'orders', 'order_items', 'pages', 'settings'];
-        const tableCheckRegex = new RegExp(`tenant_[a-z0-9-]+\\.([a-z0-9_]+)`, 'g');
+        const tableCheckRegex = new RegExp(`${expectedSchema}\\.([a-z0-9_]+)`, 'g');
         while ((match = tableCheckRegex.exec(sql)) !== null) {
             if (!allowedTables.includes(match[1])) {
                 this.logger.error(`🚨 UNVETTED TABLE ACCESS: ${match[1]} in ${expectedSchema}`);

@@ -178,6 +178,7 @@ export class IdentityService {
         // Check for Argon2 hash (starts with $argon2)
         if (storedHash.startsWith('$argon2')) {
             try {
+                // [S6] argon2.verify is already timing-resistant, but we add a constant-time check logic if needed
                 const matched = await argon2.verify(storedHash, password);
                 return { matched, needsUpgrade: false };
             } catch (e) {
@@ -193,7 +194,13 @@ export class IdentityService {
             const matchedWithPepper = await new Promise<boolean>((resolve) => {
                 crypto.scrypt(pepperedPassword, salt, 64, { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 }, (err, derivedKey) => {
                     if (err) return resolve(false);
-                    resolve(derivedKey.toString('hex') === hash);
+                    // [S6] SEC: Constant-time comparison for legacy hashes
+                    const derivedHex = derivedKey.toString('hex');
+                    const isMatch = crypto.timingSafeEqual(
+                        Buffer.from(derivedHex),
+                        Buffer.from(hash)
+                    );
+                    resolve(isMatch);
                 });
             });
             if (matchedWithPepper) return { matched: true, needsUpgrade: true }; // Upgrade to Argon2
