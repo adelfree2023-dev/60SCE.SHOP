@@ -1,7 +1,4 @@
-
-# إنشاء ملف الاختبار النهائي الشامل
-
-ultimate_test_content = '''#!/usr/bin/env bun
+#!/usr/bin/env bun
 /**
  * 🛡️ APEX V2 - ULTIMATE SECURITY & INTEGRATION TEST
  * 
@@ -621,17 +618,8 @@ describe('📊 FINAL SECURITY REPORT', () => {
         const total = Object.keys(checks).length;
         const score = (passed / total) * 100;
 
-        console.log(`\\n🛡️  SECURITY SCORE: ${score.toFixed(1)}% (${passed}/${total})\\n`);
+        console.log(`\n🛡️  SECURITY SCORE: ${score.toFixed(1)}% (${passed}/${total})\n`);
 
         expect(score).toBeGreaterThanOrEqual(90); // Minimum acceptable score
     });
 });
-'''
-
-# حفظ الملف
-with open('/mnt/kimi/output/ultimate-security-test.spec.ts', 'w', encoding = 'utf-8') as f:
-f.write(ultimate_test_content)
-
-print("✅ تم إنشاء ملف الاختبار النهائي")
-print("📁 المسار: /mnt/kimi/output/ultimate-security-test.spec.ts")
-print(f"📊 حجم الملف: {len(ultimate_test_content)} حرف")

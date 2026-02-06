@@ -1,7 +1,4 @@
-
-# إنشاء Nuclear Test - اختبار الضغط الشامل
-
-nuclear_test = '''#!/usr/bin/env bun
+#!/usr/bin/env bun
 /**
  * ☢️ NUCLEAR TEST - Phase 1 Validation
  * اختبار شامل للتحقق من جاهزية EPIC 1
