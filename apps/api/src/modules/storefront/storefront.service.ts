@@ -2,6 +2,8 @@ import { Injectable, Logger, ForbiddenException, NotFoundException, Inject } fro
 import { Pool, QueryResult } from 'pg';
 import { CacheService } from '@apex/cache';
 import format from 'pg-format';
+import { z } from 'zod';
+import { UpdateHeroSchema } from './schemas/hero.schema';
 
 @Injectable()
 export class StorefrontService {
@@ -58,16 +60,7 @@ export class StorefrontService {
         if (!tenantId || !tenantSchema) throw new Error('TENANT_CONTEXT_MISSING');
 
         // [SEC] S8: Zod URL Validation for CTA
-        const { z } = await import('zod');
-        const HeroSchema = z.object({
-            title: z.string().min(1).max(255),
-            subtitle: z.string().max(1000).optional(),
-            imageUrl: z.string().url().optional().or(z.literal('')),
-            ctaText: z.string().max(50).optional(),
-            ctaUrl: z.string().url().optional().or(z.literal(''))
-        });
-
-        const validated = HeroSchema.parse(dto);
+        const validated = UpdateHeroSchema.parse(dto);
 
         const existing = await this.query(request, format('SELECT id FROM %I.banners ORDER BY priority ASC LIMIT 1', tenantSchema));
 

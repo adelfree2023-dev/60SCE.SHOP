@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, Logger, Inject } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger, Inject, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { Pool } from 'pg';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
@@ -6,8 +6,7 @@ import * as crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { EncryptionService } from '@apex/encryption';
-import { RedisService } from '@apex/redis';
-import { ForbiddenException, BadRequestException } from '@nestjs/common';
+import { CacheService } from '@apex/cache';
 
 @Injectable()
 export class IdentityService {
@@ -19,7 +18,7 @@ export class IdentityService {
         private readonly configService: ConfigService,
         private readonly jwtService: JwtService,
         private readonly encryptionService: EncryptionService,
-        private readonly redisService: RedisService
+        @Inject('CACHE_SERVICE') private readonly cacheService: CacheService
     ) {
         this.pepper = this.configService.get<string>('PASSWORD_PEPPER') || '';
     }
@@ -84,12 +83,11 @@ export class IdentityService {
 
     async login(email: string, password: string, tenantId?: string) {
         // [SEC] S6: Brute Force Protection (Account Lockout)
-        const redis = this.redisService.getClient();
         const lockoutKey = `lockout:${email}`;
-        const attempts = await redis.get(lockoutKey);
+        const attempts = await this.cacheService.get(lockoutKey);
 
-        if (attempts && parseInt(attempts) >= 5) {
-            this.logger.warn(`🔒 Account locked: ${email}`);
+        if (attempts && parseInt(attempts as string) >= 5) {
+            this.logger.warn(`Locked: ${email}`);
             throw new ForbiddenException('Account locked due to too many failed attempts. Try again later.');
         }
 
@@ -130,21 +128,21 @@ export class IdentityService {
             // Fake computation to timing attack mitigation?
             await this.hashPassword('dummy');
             // Increment lockout
-            await redis.incr(lockoutKey);
-            await redis.expire(lockoutKey, 300); // 5 mins
+            await this.cacheService.incr(lockoutKey);
+            await this.cacheService.expire(lockoutKey, 300); // 5 mins
             throw new UnauthorizedException('Invalid credentials');
         }
 
         const { matched, needsUpgrade } = await this.comparePasswordDetailed(password, user.password || user.password_hash);
 
         if (!matched) {
-            await redis.incr(lockoutKey);
-            await redis.expire(lockoutKey, 300);
+            await this.cacheService.incr(lockoutKey);
+            await this.cacheService.expire(lockoutKey, 300);
             throw new UnauthorizedException('Invalid credentials');
         }
 
         // Reset lockout on success
-        await redis.del(lockoutKey);
+        await this.cacheService.del(lockoutKey);
 
         if (needsUpgrade) {
             const upgradedHash = await this.hashPassword(password);

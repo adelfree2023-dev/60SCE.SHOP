@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Req, UseGuards, Logger, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Req, UseGuards, Logger, UseInterceptors, UsePipes } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { AddressService } from './address.service';
 import { WalletService } from './wallet.service';
@@ -8,7 +8,6 @@ import { ChangePasswordSchema, ChangePasswordDto } from './dto/customer.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { IdentityService } from '../identity/identity.service';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
-import { UsePipes } from '@nestjs/common';
 import { AuditLoggerInterceptor } from '../../common/interceptors/audit-logger.interceptor';
 import { Throttle } from '@nestjs/throttler';
 

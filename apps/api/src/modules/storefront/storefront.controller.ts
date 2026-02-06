@@ -59,7 +59,9 @@ export class StorefrontController {
     async getProduct(@Req() request: any, @Param('id') id: string) {
         this.logger.log(`GET /storefront/products/${id} - Tenant: ${request.tenantId || 'null'}`);
         return this.storefrontService.getProductById(request, id);
-    } @SkipTenantScope()
+    }
+
+    @SkipTenantScope()
     @Get('settings')
     @ApiOperation({
         summary: 'Get tenant settings (Load Test Target)',
