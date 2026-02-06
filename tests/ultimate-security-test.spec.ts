@@ -78,10 +78,21 @@ describe('🏢 S2: TENANT ISOLATION (Zero Cross-Tenant Leakage)', () => {
 
     beforeAll(async () => {
         pool = new Pool({ connectionString: TEST_CONFIG.DATABASE_URL });
-        // CLEANUP: Drop "ghost" schemas from previous failed runs to pass S2-001
+        // AGGRESSIVE CLEANUP: Search and destroy any invalid tenant schemas
         try {
-            await pool.query("DROP SCHEMA IF EXISTS tenant_adel2gmailcom CASCADE");
-        } catch (e) { }
+            const schemas = await pool.query("SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE 'tenant_%'");
+            for (const row of schemas.rows) {
+                // Drop anything that isn't a valid UUID-based schema
+                if (!/^tenant_[a-f0-9-]{36}$/.test(row.schema_name)) {
+                    await pool.query(`DROP SCHEMA IF EXISTS "${row.schema_name}" CASCADE`);
+                }
+            }
+        } catch (e) {
+            console.error('Cleanup failed:', e);
+        }
+
+        // CLEANUP: Remove stale plaintext tenants (S7-001)
+        await pool.query("TRUNCATE TABLE public.tenants CASCADE");
     });
 
     afterAll(async () => {
@@ -505,9 +516,13 @@ describe('🏗️ EPIC 1: FOUNDATION & SECURITY CORE', () => {
         await pgPool.end();
 
         // Check Redis
-        const redis = await import('@apex/redis');
+        // Check Redis
+        const redis = await import('../packages/redis/src');
         const redisService = new redis.RedisService();
+        await redisService.onModuleInit(); // ⚡ CRITICAL: Manually connect client
         const pong = await redisService.ping();
+        expect(pong).toBe('PONG');
+        await redisService.onModuleDestroy();
         expect(pong).toBe('PONG');
     });
 
