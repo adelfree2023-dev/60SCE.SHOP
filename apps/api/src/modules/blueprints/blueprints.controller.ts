@@ -5,7 +5,7 @@ import { BlueprintSchema } from './schemas/blueprint.schema';
 import { BlueprintsService } from './blueprints.service';
 import { SkipTenantScope } from '@apex/security';
 
-@Controller('api/blueprints')
+@Controller('blueprints')
 @SkipTenantScope()
 export class BlueprintsController {
     private readonly logger = new Logger(BlueprintsController.name);

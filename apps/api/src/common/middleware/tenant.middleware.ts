@@ -81,6 +81,11 @@ export class TenantMiddleware implements NestMiddleware {
                 get: async () => {
                     if (!client) {
                         client = await this.pool.connect();
+                        // [SEC-L4] Strict UUID Validation (Prevents SQL Injection at entry)
+                        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantInfo.id)) {
+                            throw new Error('Invalid tenant ID format (must be UUID)');
+                        }
+
                         // Safe concatenation - STRICTLY using UUID (id) for schema
                         const schemaName = 'tenant_' + tenantInfo.id;
                         await client.query(format('SET search_path TO %I, public', schemaName));

@@ -17,9 +17,15 @@ import { HealthController } from './common/controllers/health.controller';
 import { ConfigModule } from '@nestjs/config';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module';
 
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
+        ThrottlerModule.forRoot([{
+            ttl: 60000,
+            limit: 10,
+        }]),
         EventEmitterModule.forRoot(),
         RedisModule,
         CacheModule,
@@ -41,6 +47,10 @@ import { SuperAdminModule } from './modules/super-admin/super-admin.module';
         {
             provide: APP_FILTER,
             useClass: GlobalExceptionFilter,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
         },
         {
             provide: APP_GUARD,

@@ -34,11 +34,13 @@ export class AuthController {
 
         try {
             // FIX-014: Session Regeneration (Clear before set)
-            res.clearCookie('apex_session', {
+            // FIX-014/S8-003: Session Regeneration with explicit flags
+            res.setCookie('apex_session', '', {
                 path: '/',
                 domain: this.cookieDomain,
                 httpOnly: true,
-                secure: true
+                secure: true,
+                expires: new Date(0)
             });
 
             const { user, token } = await this.identityService.login(email, password, tenantId);
@@ -74,11 +76,12 @@ export class AuthController {
 
     @Post('logout')
     async logout(@Res() res: FastifyReply) {
-        res.clearCookie('apex_session', {
+        res.setCookie('apex_session', '', {
             path: '/',
             domain: this.cookieDomain,
             httpOnly: true,
-            secure: true
+            secure: true,
+            expires: new Date(0)
         });
         return res.send({ success: true });
     }

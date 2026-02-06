@@ -23,6 +23,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
         this.client.on('error', (err) => {
             this.logger.error(`Redis error: ${err.message}`);
+            // [SEC-FIX] Handle DNS resolution failures specifically for Docker startup
+            if (err.message.includes('ESERVFAIL') || err.message.includes('EAI_AGAIN')) {
+                this.logger.warn('DNS resolution failed for Redis, will retry via reconnect strategy...');
+            }
         });
 
         this.client.on('reconnecting', () => {

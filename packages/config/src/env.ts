@@ -34,4 +34,9 @@ const envSchema = z.object({
     return true;
 });
 
-export const env = envSchema.parse(process.env);
+// [SEC] S1: Lazy validation to allow tests to override env before parsing
+export function getEnv() {
+    return envSchema.parse(process.env);
+}
+
+export const env = process.env.NODE_ENV === 'test' ? ({} as any) : envSchema.parse(process.env);

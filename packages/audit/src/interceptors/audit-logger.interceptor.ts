@@ -20,11 +20,10 @@ export class AuditLoggerInterceptor implements NestInterceptor {
     }
 
     private static readonly PII_FIELDS = [
-        'password', 'token', 'secret', 'apiKey', 'cvv', 'creditCard',
-        'email', 'phone', 'address', 'fullName', 'firstName', 'lastName',
-        'ssn', 'taxId', 'iban', 'routingNumber', 'accountNumber', 'stripe',
-        'birthDate', 'passportNumber', 'nationalId', 'driverLicense', 'taxid',
-        'zipCode', 'postalCode', 'city', 'state', 'country', 'latitude', 'longitude'
+        'password', 'token', 'secret', 'apikey', 'cvv', 'creditcard',
+        'email', 'phone', 'address', 'fullname', 'firstname', 'lastname',
+        'ssn', 'taxid', 'iban', 'routingnumber', 'accountnumber', 'stripe',
+        'birthdate', 'passportnumber', 'nationalid', 'driverlicense'
     ];
 
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -115,9 +114,11 @@ export class AuditLoggerInterceptor implements NestInterceptor {
 
         return Object.fromEntries(
             Object.entries(obj).map(([key, value]) => {
-                const isPII = AuditLoggerInterceptor.PII_FIELDS.some(pii => key.toLowerCase().includes(pii.toLowerCase()));
+                const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const isPII = AuditLoggerInterceptor.PII_FIELDS.some(pii => normalizedKey.includes(pii));
+
                 if (isPII) return [key, '[REDACTED]'];
-                if (typeof value === 'object') return [key, this.sanitizeObject(value)];
+                if (typeof value === 'object' && value !== null) return [key, this.sanitizeObject(value)];
                 return [key, value];
             })
         );

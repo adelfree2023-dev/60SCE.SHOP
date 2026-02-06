@@ -54,16 +54,17 @@ export class IdentityService {
 
             const resolvedTenantId = tenantRes.rows[0].id;
 
-            // [SEC] S7: PII Encryption (Email)
+            // [SEC] S7: PII Encryption (Email) + Blind Index
             const encryptedEmail = await this.encryptionService.encryptDbValue(email);
+            const emailHash = crypto.createHash('sha256').update(email.toLowerCase()).digest('hex');
             const hashedPassword = await this.hashPassword(password);
             const verificationToken = crypto.randomBytes(32).toString('hex');
 
             const res = await client.query(
-                `INSERT INTO public.users (email, password_hash, role, tenant_id, verification_token, is_verified)
-                 VALUES ($1, $2, $3, $4, $5, $6)
+                `INSERT INTO public.users (email, password_hash, role, tenant_id, verification_token, is_verified, email_hash)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7)
                  RETURNING id, email, role, tenant_id as "tenantId"`,
-                [encryptedEmail, hashedPassword, role, resolvedTenantId, verificationToken, false]
+                [encryptedEmail, hashedPassword, role, resolvedTenantId, verificationToken, false, emailHash]
             );
 
             const user = res.rows[0];
@@ -115,10 +116,11 @@ export class IdentityService {
         // REVISING: I will ONLY fix Password Hashing (Argon2) and Lockout.
         // Encrypting Email breaks everything without Schema Migration.
 
+        const emailHash = crypto.createHash('sha256').update(email.toLowerCase()).digest('hex');
         const query = tenantId
-            ? 'SELECT * FROM public.users WHERE email = $1 AND tenant_id = $2'
-            : 'SELECT * FROM public.users WHERE email = $1';
-        const params = tenantId ? [email, tenantId] : [email];
+            ? 'SELECT * FROM public.users WHERE email_hash = $1 AND tenant_id = $2'
+            : 'SELECT * FROM public.users WHERE email_hash = $1';
+        const params = tenantId ? [emailHash, tenantId] : [emailHash];
 
         const res = await this.pool.query(query, params);
         const user = res.rows[0];
