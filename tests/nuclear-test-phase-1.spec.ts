@@ -248,6 +248,8 @@ describe('☢️ NUCLEAR TEST SUITE', () => {
             expect([201, 403, 500]).toContain(response.status);
 
             if (response.status === 201) {
+                const body = await response.json();
+                expect(body.tenantId).toBeDefined();
                 expect(duration).toBeLessThan(60000);
             }
 
