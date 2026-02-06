@@ -59,7 +59,7 @@ async function runChecks() {
   // S2: Database Isolation Check
   console.log('\n🏢 S2: Tenant Isolation');
   try {
-    const connectionString = process.env.DATABASE_URL || 'postgresql://apex:apex@127.0.0.1:5432/apex';
+    const connectionString = process.env.DATABASE_URL || 'postgresql://apex:apex2026@127.0.0.1:5432/apex';
     console.log(`\n🔌 Connecting to: ${connectionString.replace(/:[^:@]*@/, ':****@')}`);
     const pool = new Pool({
       connectionString
