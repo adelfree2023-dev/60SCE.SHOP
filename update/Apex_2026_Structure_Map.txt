@@ -1,0 +1,490 @@
+﻿========================================================
+🗺️  PROJECT STRUCTURE MAP
+========================================================
+📅 Generated: 2026-02-06 13:29
+📂 Files Included: 341
+🚫 Noise Filtered: Lockfiles, Logs, Assets
+🔒 Security Filter: ACTIVE
+========================================================
+
+├── 📂 .agent
+│   ├── 📂 rules
+│   │   ├── 📄 00-sovereign-constitution.md ➤ 📜 THE SOVEREIGN CONSTITUTION (v3.0)
+│   │   ├── 📄 01-backend-law.md ➤ 🔧 BACKEND LAW: BUN + NESTJS + DRIZZLE
+│   │   ├── 📄 02-frontend-law.md ➤ 🎨 FRONTEND LAW: NEXT.JS 16 + RADIX + TAILWIND
+│   │   ├── 📄 03-security-s1-s8.md ➤ 🔒 SECURITY LAW: THE S1-S8 PROTOCOL
+│   │   ├── 📄 04-testing-mandate.md ➤ 🧪 THE TESTING MANDATE (v1.0)
+│   │   ├── 📄 05-database-excellence.md ➤ 🗄️ DATABASE EXCELLENCE (v1.0)
+│   │   ├── 📄 06-multitenancy-isolation.md ➤ 🧬 MULTI-TENANCY & ISOLATION (v1.0)
+│   │   ├── 📄 07-performance-logic.md ➤ ⚡ PERFORMANCE & COMPONENT LOGIC (v1.0)
+│   │   ├── 📄 08-root-cause-sentinel.md ➤ 🕵️ ROOT CAUSE SENTINEL (v1.0)
+│   │   ├── 📄 09-cloud-ai-innovation.md ➤ 🔍 CLOUD & AI INNOVATION (v1.0)
+│   │   ├── 📄 10-naming-standards.md ➤ 🔠 NAMING STANDARDS LAW (Pillar 2)
+│   │   ├── 📄 11-api-standards.md ➤ 🔌 API STANDARDS LAW (v1.0)
+│   │   ├── 📄 12-modular-architecture.md ➤ 🧱 MODULAR ARCHITECTURE LAW (The Lego Protocol)
+│   │   ├── 📄 13-workflow-mandate.md ➤ 🔄 WORKFLOW MANDATE (The Crucial Base)
+│   │   └── 📄 apex_constitution.md ➤ 🛑 APEX V2 ENGINEERING CONSTITUTION (MANDATORY ...
+│   ├── 📂 skills
+│   │   ├── 📂 apex_api_architect
+│   │   │   └── 📄 SKILL.md ➤ apex_api_architect
+│   │   ├── 📂 apex_architect
+│   │   │   └── 📄 SKILL.md ➤ 🏗️ Apex Architect Skill
+│   │   ├── 📂 apex_atomic_performance
+│   │   │   └── 📄 SKILL.md ➤ ⚡ Atomic Performance & Component Logic (v2.0)
+│   │   ├── 📂 apex_cloud_native_orchestrator
+│   │   │   └── 📄 SKILL.md ➤ 🌩️ Cloud-Native Deployment & CI/CD (v2.0)
+│   │   ├── 📂 apex_code_translator
+│   │   │   └── 📄 SKILL.md ➤ apex_code_translator
+│   │   ├── 📂 apex_computer_scientist
+│   │   │   └── 📄 SKILL.md ➤ 🎓 Computer Scientist & Refactoring (v2.0)
+│   │   ├── 📂 apex_database_expert
+│   │   │   └── 📄 SKILL.md ➤ apex_database_expert
+│   │   ├── 📂 apex_data_intelligence
+│   │   │   └── 📄 SKILL.md ➤ apex_data_intelligence
+│   │   ├── 📂 apex_defensive_forms
+│   │   │   └── 📄 SKILL.md ➤ 🏗️ Defensive Form Architecture Protocol
+│   │   ├── 📂 apex_extended_security_guards
+│   │   │   └── 📄 SKILL.md ➤ 🛡️ Extended Security Guards Protocol
+│   │   ├── 📂 apex_forensic_security
+│   │   │   └── 📄 SKILL.md ➤ APEX Forensic Security Skill (SEC-L4)
+│   │   ├── 📂 apex_lego_builder
+│   │   │   └── 📄 SKILL.md ➤ 🧱 System Architecture Mapping & Modular Design...
+│   │   ├── 📂 apex_master_engineer
+│   │   │   └── 📄 SKILL.md ➤ apex_master_engineer
+│   │   ├── 📂 apex_phase_1_reference
+│   │   │   └── 📄 SKILL.md ➤ 📚 Apex Phase 1 Reference Guide
+│   │   ├── 📂 apex_protocol_enforcer
+│   │   │   └── 📄 SKILL.md ➤ 🛡️ Security Audit & Protocol Enforcement (v2.0)
+│   │   ├── 📂 apex_provisioning_master
+│   │   │   └── 📄 SKILL.md ➤ ⚡ Multi-Tenant Logic & Isolation (v2.0)
+│   │   ├── 📂 apex_realtime_data
+│   │   │   └── 📄 SKILL.md ➤ apex_realtime_data
+│   │   ├── 📂 apex_root_cause_sentinel
+│   │   │   └── 📄 SKILL.md ➤ 🕵️ Context-Aware Debugging & Error Handling (v...
+│   │   ├── 📂 apex_semantic_search
+│   │   │   └── 📄 SKILL.md ➤ 🔍 Semantic Vector Search Protocol
+│   │   ├── 📂 apex_server_operations
+│   │   │   └── 📄 SKILL.md ➤ APEX Server Operations Skill (OPS-L3)
+│   │   ├── 📂 apex_sovereign_state
+│   │   │   └── 📄 SKILL.md ➤ 🐻 State Management Logic (v2.0)
+│   │   ├── 📂 apex_testing_standard
+│   │   │   └── 📄 SKILL.md ➤ apex_testing_standard
+│   │   └── 📂 architecture
+│   │       └── 📄 SYSTEM_SKILLS_RISK_REGISTRY.md ➤ 🎯 SYSTEM SKILLS UPDATE & PREDICTIVE RISK REGISTRY
+│   └── 📂 workflows
+│       ├── 📄 debug-fix.md ➤ 🔍 Workflow: Debug & Fix
+│       ├── 📄 fix-deployment.md ➤ turbo
+│       ├── 📄 security-review.md ➤ 🛡️ MANDATORY SECURITY REVIEW WORKFLOW
+│       ├── 📄 seed-admin.md
+│       ├── 📄 standard-task-lifecycle.md ➤ 🧬 Standard Task Lifecycle (The Crucial Base)
+│       └── 📄 start-new-module.md ➤ 🚀 Workflow: Start New Module
+├── 📂 .turbo
+│   └── 📂 cache
+│       ├── 📄 1bf93ffe51be143a-meta.json
+│       ├── 📄 2d17d75696e4cb7d-meta.json
+│       ├── 📄 3c8f91c443a62b26-meta.json
+│       ├── 📄 65976039ce8ca429-meta.json
+│       ├── 📄 77d9bd9470796b7a-meta.json
+│       ├── 📄 9cf504d4bb6dc046-meta.json
+│       ├── 📄 aed0c75050d0fdc1-meta.json
+│       ├── 📄 c121cdbd466e4d3f-meta.json
+│       ├── 📄 d61cdf4dfbec7836-meta.json
+│       ├── 📄 daf0fc1844a0d1c0-meta.json
+│       ├── 📄 dda8c5893f5d29c3-meta.json
+│       ├── 📄 eef8c52c4a4999b0-meta.json
+│       └── 📄 fa1fff5398897422-meta.json
+├── 📂 apps
+│   ├── 📂 admin
+│   ├── 📂 api
+│   │   ├── 📂 .turbo
+│   │   ├── 📂 infra
+│   │   │   └── 📂 docker
+│   │   │       └── 📂 traefik
+│   │   │           └── 📂 dynamic
+│   │   ├── 📂 src
+│   │   │   ├── 📂 common
+│   │   │   │   ├── 📂 controllers
+│   │   │   │   │   ├── 📄 health.controller.spec.ts
+│   │   │   │   │   └── 📄 health.controller.ts
+│   │   │   │   ├── 📂 decorators
+│   │   │   │   │   ├── 📄 public.decorator.ts
+│   │   │   │   │   └── 📄 skip-tenant-validation.decorator.ts
+│   │   │   │   ├── 📂 filters
+│   │   │   │   │   ├── 📄 all-exceptions.filter.ts
+│   │   │   │   │   └── 📄 global-exception.filter.ts
+│   │   │   │   ├── 📂 guards
+│   │   │   │   │   ├── 📄 jwt-auth.guard.ts
+│   │   │   │   │   ├── 📄 super-admin.guard.ts
+│   │   │   │   │   └── 📄 tenant-scope.guard.ts
+│   │   │   │   ├── 📂 interceptors
+│   │   │   │   │   └── 📄 audit-logger.interceptor.ts
+│   │   │   │   ├── 📂 middleware
+│   │   │   │   │   ├── 📄 helmet.middleware.ts
+│   │   │   │   │   ├── 📄 tenant.middleware.spec.ts
+│   │   │   │   │   └── 📄 tenant.middleware.ts
+│   │   │   │   └── 📂 pipes
+│   │   │   │       ├── 📄 zod-validation.pipe.spec.ts
+│   │   │   │       └── 📄 zod-validation.pipe.ts
+│   │   │   ├── 📂 modules
+│   │   │   │   ├── 📂 admin
+│   │   │   │   │   ├── 📄 admin-customer.controller.ts
+│   │   │   │   │   └── 📄 admin.module.ts
+│   │   │   │   ├── 📂 auth
+│   │   │   │   │   ├── 📄 auth.controller.ts
+│   │   │   │   │   ├── 📄 auth.module.ts
+│   │   │   │   │   └── 📄 auth.service.ts
+│   │   │   │   ├── 📂 blueprints
+│   │   │   │   │   ├── 📂 dto
+│   │   │   │   │   │   └── 📄 index.ts
+│   │   │   │   │   ├── 📂 schemas
+│   │   │   │   │   │   └── 📄 blueprint.schema.ts
+│   │   │   │   │   ├── 📄 blueprints.controller.spec.ts
+│   │   │   │   │   ├── 📄 blueprints.controller.ts
+│   │   │   │   │   ├── 📄 blueprints.module.ts
+│   │   │   │   │   ├── 📄 blueprints.service.spec.ts
+│   │   │   │   │   └── 📄 blueprints.service.ts
+│   │   │   │   ├── 📂 customer
+│   │   │   │   │   ├── 📂 dto
+│   │   │   │   │   │   └── 📄 address.dto.ts
+│   │   │   │   │   ├── 📄 address.service.ts
+│   │   │   │   │   ├── 📄 customer.controller.ts
+│   │   │   │   │   ├── 📄 customer.module.ts
+│   │   │   │   │   ├── 📄 customer.service.ts
+│   │   │   │   │   ├── 📄 wallet.service.ts
+│   │   │   │   │   └── 📄 wishlist.service.ts
+│   │   │   │   ├── 📂 identity
+│   │   │   │   │   ├── 📄 identity.controller.ts
+│   │   │   │   │   ├── 📄 identity.module.ts
+│   │   │   │   │   ├── 📄 identity.service.spec.ts
+│   │   │   │   │   └── 📄 identity.service.ts
+│   │   │   │   ├── 📂 mail
+│   │   │   │   │   ├── 📄 mail.module.ts
+│   │   │   │   │   └── 📄 mail.service.ts
+│   │   │   │   ├── 📂 provisioning
+│   │   │   │   │   ├── 📂 dto
+│   │   │   │   │   │   ├── 📄 create-tenant.dto.ts
+│   │   │   │   │   │   └── 📄 stripe-webhook.dto.ts
+│   │   │   │   │   ├── 📂 events
+│   │   │   │   │   │   ├── 📄 tenant-failed.event.ts
+│   │   │   │   │   │   └── 📄 tenant-provisioned.event.ts
+│   │   │   │   │   ├── 📂 guards
+│   │   │   │   │   ├── 📂 interfaces
+│   │   │   │   │   ├── 📄 provisioning.controller.spec.ts ➤ Set dummy env vars for Zod validation in @apex/...
+│   │   │   │   │   ├── 📄 provisioning.controller.ts
+│   │   │   │   │   ├── 📄 provisioning.module.ts
+│   │   │   │   │   ├── 📄 provisioning.service.spec.ts
+│   │   │   │   │   └── 📄 provisioning.service.ts
+│   │   │   │   ├── 📂 storefront
+│   │   │   │   │   ├── 📂 dto
+│   │   │   │   │   ├── 📂 interfaces
+│   │   │   │   │   ├── 📂 schemas
+│   │   │   │   │   │   ├── 📄 branding.schema.ts
+│   │   │   │   │   │   └── 📄 hero.schema.ts
+│   │   │   │   │   ├── 📄 storefront.controller.spec.ts
+│   │   │   │   │   ├── 📄 storefront.controller.ts
+│   │   │   │   │   ├── 📄 storefront.module.ts
+│   │   │   │   │   ├── 📄 storefront.service.spec.ts
+│   │   │   │   │   └── 📄 storefront.service.ts
+│   │   │   │   ├── 📂 super-admin
+│   │   │   │   │   ├── 📄 email.controller.ts
+│   │   │   │   │   └── 📄 super-admin.module.ts
+│   │   │   │   └── 📂 tenants
+│   │   │   │       ├── 📄 pii-support.service.ts
+│   │   │   │       ├── 📄 tenant.dto.ts
+│   │   │   │       ├── 📄 tenants.controller.spec.ts
+│   │   │   │       ├── 📄 tenants.controller.ts
+│   │   │   │       ├── 📄 tenants.module.ts
+│   │   │   │       ├── 📄 tenants.service.spec.ts
+│   │   │   │       └── 📄 tenants.service.ts
+│   │   │   ├── 📄 app.module.ts
+│   │   │   └── 📄 main.ts
+│   │   ├── 📄 package.json
+│   │   └── 📄 tsconfig.json
+│   ├── 📂 landing
+│   ├── 📂 mcp-server
+│   │   ├── 📂 src
+│   │   │   ├── 📂 lib
+│   │   │   │   ├── 📄 audit.ts
+│   │   │   │   ├── 📄 rbac.ts
+│   │   │   │   └── 📄 tool-wrapper.ts
+│   │   │   ├── 📂 tools
+│   │   │   │   ├── 📄 provisioning.ts
+│   │   │   │   ├── 📄 security.ts
+│   │   │   │   ├── 📄 structure.ts
+│   │   │   │   └── 📄 tenants.ts
+│   │   │   ├── 📄 index.spec.ts
+│   │   │   └── 📄 index.ts
+│   │   ├── 📄 package.json
+│   │   └── 📄 tsconfig.json
+│   ├── 📂 mobile
+│   ├── 📂 storefront
+│   │   ├── 📂 .turbo
+│   │   ├── 📂 app
+│   │   │   └── 📄 globals.css
+│   │   ├── 📄 next-env.d.ts ➤ <reference types="next" />
+│   │   ├── 📄 next.config.js ➤ @type {import('next').NextConfig} 
+│   │   ├── 📄 package.json
+│   │   ├── 📄 postcss.config.js
+│   │   ├── 📄 tailwind.config.ts
+│   │   └── 📄 tsconfig.json
+│   └── 📂 super-admin
+│       ├── 📂 app
+│       │   └── 📄 globals.css
+│       ├── 📄 tailwind.config.ts
+│       └── 📄 tsconfig.json
+├── 📂 docs
+│   ├── 📄 admin-dashboard-masterlist.md ➤ 🎛️ Apex v2 Admin Dashboard: World-Class Contro...
+│   ├── 📄 Apex v2 Engineering Constitution & Modular Protocol .md ➤ 📜 Apex v2 Engineering Constitution & Modular P...
+│   ├── 📄 architecture.md ➤ 🏗️ Apex v2: Modern Secure Multi-Tenant Archite...
+│   ├── 📄 landing-page-masterlist.md ➤ 🌐 Apex v2 Marketing Website: Master Page List
+│   ├── 📄 plan.md ➤ 📜 APEX V2 FINAL MASTER EXECUTION REGISTER
+│   ├── 📄 store-features-masterlist.md ➤ 🛒 Apex v2 Storefront: Master Page & Feature List
+│   ├── 📄 super-admin-masterlist.md ➤ 👑 Apex v2 Super Admin: Platform Governance (Go...
+│   └── 📄 🧱 Apex v2 Strategic Roadmap & Lego-Architecture Blueprint .md ➤ 🧱 Apex v2 Strategic Roadmap & Lego-Architectur...
+├── 📂 infra
+│   ├── 📂 docker
+│   │   ├── 📂 minio
+│   │   │   └── 📄 config.json
+│   │   ├── 📂 postgres
+│   │   │   ├── 📄 extensions.sql
+│   │   │   ├── 📄 init.sql
+│   │   │   ├── 📄 migration_identity.sql
+│   │   │   ├── 📄 migration_identity_final.sql
+│   │   │   └── 📄 migration_identity_v2.sql
+│   │   ├── 📂 redis
+│   │   └── 📂 traefik
+│   │       ├── 📂 dynamic
+│   │       │   └── 📄 routes.yml ➤ API Router - Must be before storefront for prio...
+│   │       ├── 📄 dynamic.yml
+│   │       └── 📄 traefik.yml
+│   └── 📄 docker-compose.yml
+├── 📂 migrations
+│   ├── 📄 002_customer_portal.sql
+│   └── 📄 fix_roles.sql
+├── 📂 packages
+│   ├── 📂 audit
+│   │   ├── 📂 src
+│   │   │   ├── 📂 interceptors
+│   │   │   │   ├── 📄 audit-logger.interceptor.spec.ts
+│   │   │   │   └── 📄 audit-logger.interceptor.ts
+│   │   │   └── 📄 index.ts
+│   │   └── 📄 package.json
+│   ├── 📂 cache
+│   │   ├── 📂 src
+│   │   │   ├── 📄 cache.module.spec.ts
+│   │   │   ├── 📄 cache.module.ts
+│   │   │   ├── 📄 cache.service.spec.ts
+│   │   │   ├── 📄 cache.service.ts
+│   │   │   └── 📄 index.ts
+│   │   └── 📄 package.json
+│   ├── 📂 config
+│   │   ├── 📂 src
+│   │   │   ├── 📄 env.spec.ts
+│   │   │   ├── 📄 env.ts
+│   │   │   └── 📄 index.ts
+│   │   └── 📄 package.json
+│   ├── 📂 db
+│   │   ├── 📂 src
+│   │   │   ├── 📂 schema
+│   │   │   │   ├── 📄 addresses.spec.ts
+│   │   │   │   ├── 📄 addresses.ts
+│   │   │   │   ├── 📄 audit-logs.schema.spec.spec.ts
+│   │   │   │   ├── 📄 audit-logs.schema.spec.ts
+│   │   │   │   ├── 📄 audit-logs.spec.spec.ts
+│   │   │   │   ├── 📄 audit-logs.spec.ts
+│   │   │   │   ├── 📄 audit-logs.ts
+│   │   │   │   ├── 📄 blueprints.ts
+│   │   │   │   ├── 📄 index.ts
+│   │   │   │   ├── 📄 support-tickets.spec.ts
+│   │   │   │   ├── 📄 support-tickets.ts
+│   │   │   │   ├── 📄 tenants.spec.spec.ts
+│   │   │   │   ├── 📄 tenants.spec.ts
+│   │   │   │   ├── 📄 tenants.ts
+│   │   │   │   ├── 📄 user-sessions.spec.ts
+│   │   │   │   ├── 📄 user-sessions.ts
+│   │   │   │   ├── 📄 users.ts
+│   │   │   │   ├── 📄 wallet-transactions.spec.ts
+│   │   │   │   ├── 📄 wallet-transactions.ts
+│   │   │   │   ├── 📄 wishlist.spec.ts
+│   │   │   │   └── 📄 wishlist.ts
+│   │   │   ├── 📄 index.spec.ts
+│   │   │   └── 📄 index.ts
+│   │   ├── 📄 drizzle.config.ts
+│   │   └── 📄 package.json
+│   ├── 📂 encryption
+│   │   ├── 📂 src
+│   │   │   ├── 📄 encryption.module.spec.ts
+│   │   │   ├── 📄 encryption.module.ts
+│   │   │   ├── 📄 encryption.service.spec.ts
+│   │   │   ├── 📄 encryption.service.ts
+│   │   │   └── 📄 index.ts
+│   │   └── 📄 package.json
+│   ├── 📂 monitoring
+│   │   ├── 📂 src
+│   │   │   ├── 📄 index.ts
+│   │   │   ├── 📄 monitoring.service.spec.ts
+│   │   │   └── 📄 monitoring.service.ts
+│   │   └── 📄 package.json
+│   ├── 📂 provisioning
+│   │   ├── 📂 src
+│   │   │   ├── 📂 services
+│   │   │   │   ├── 📄 data-seeder.service.spec.ts
+│   │   │   │   ├── 📄 data-seeder.service.ts
+│   │   │   │   ├── 📄 provisioning.service.spec.ts
+│   │   │   │   ├── 📄 provisioning.service.ts
+│   │   │   │   ├── 📄 schema-creator.service.spec.ts
+│   │   │   │   ├── 📄 schema-creator.service.ts
+│   │   │   │   ├── 📄 traefik-router.service.spec.ts
+│   │   │   │   └── 📄 traefik-router.service.ts
+│   │   │   └── 📄 index.ts
+│   │   └── 📄 package.json
+│   ├── 📂 redis
+│   │   ├── 📂 src
+│   │   │   ├── 📄 index.ts
+│   │   │   ├── 📄 redis.module.spec.ts
+│   │   │   ├── 📄 redis.module.ts
+│   │   │   ├── 📄 redis.service.spec.ts
+│   │   │   └── 📄 redis.service.ts
+│   │   └── 📄 package.json
+│   ├── 📂 security
+│   │   ├── 📂 src
+│   │   │   ├── 📂 decorators
+│   │   │   │   ├── 📄 roles.decorator.spec.ts
+│   │   │   │   ├── 📄 roles.decorator.ts
+│   │   │   │   ├── 📄 skip-tenant-scope.decorator.spec.ts
+│   │   │   │   └── 📄 skip-tenant-scope.decorator.ts
+│   │   │   ├── 📂 filters
+│   │   │   │   ├── 📄 global-exception.filter.spec.ts
+│   │   │   │   └── 📄 global-exception.filter.ts
+│   │   │   ├── 📂 guards
+│   │   │   │   ├── 📄 roles.guard.spec.ts
+│   │   │   │   ├── 📄 roles.guard.ts
+│   │   │   │   ├── 📄 super-admin.guard.spec.ts
+│   │   │   │   ├── 📄 super-admin.guard.ts
+│   │   │   │   ├── 📄 tenant-scope.guard.spec.ts
+│   │   │   │   └── 📄 tenant-scope.guard.ts
+│   │   │   ├── 📂 middlewares
+│   │   │   │   ├── 📄 helmet.middleware.spec.ts
+│   │   │   │   ├── 📄 helmet.middleware.ts
+│   │   │   │   ├── 📄 rate-limiter.middleware.spec.ts ➤ Rate Limiter Middleware Spec - S6 Compliant
+│   │   │   │   ├── 📄 rate-limiter.middleware.ts
+│   │   │   │   ├── 📄 request-id.middleware.spec.ts
+│   │   │   │   ├── 📄 request-id.middleware.ts
+│   │   │   │   ├── 📄 security-headers.middleware.spec.ts
+│   │   │   │   └── 📄 security-headers.middleware.ts
+│   │   │   ├── 📂 services
+│   │   │   │   ├── 📄 secrets-rotator.service.spec.ts
+│   │   │   │   └── 📄 secrets-rotator.service.ts
+│   │   │   ├── 📄 index.ts
+│   │   │   ├── 📄 security.module.spec.ts
+│   │   │   └── 📄 security.module.ts
+│   │   └── 📄 package.json
+│   ├── 📂 storage
+│   │   ├── 📂 src
+│   │   │   ├── 📄 index.ts
+│   │   │   ├── 📄 storage.service.spec.ts
+│   │   │   └── 📄 storage.service.ts
+│   │   └── 📄 package.json
+│   ├── 📂 storefront-engine
+│   │   ├── 📂 src
+│   │   │   ├── 📂 context
+│   │   │   │   ├── 📄 ApexProvider.spec.ts
+│   │   │   │   └── 📄 ApexProvider.ts
+│   │   │   ├── 📂 hooks
+│   │   │   │   ├── 📄 useAuth.spec.ts
+│   │   │   │   ├── 📄 useAuth.ts
+│   │   │   │   ├── 📄 useCart.spec.ts
+│   │   │   │   ├── 📄 useCart.ts
+│   │   │   │   ├── 📄 useProducts.spec.ts
+│   │   │   │   └── 📄 useProducts.ts
+│   │   │   ├── 📂 lib
+│   │   │   │   ├── 📄 firebase.spec.ts
+│   │   │   │   └── 📄 firebase.ts
+│   │   │   ├── 📂 types
+│   │   │   │   └── 📄 index.ts
+│   │   │   └── 📄 index.ts
+│   │   ├── 📄 package.json
+│   │   └── 📄 tsconfig.json
+│   ├── 📂 ui-kit
+│   │   ├── 📂 .turbo
+│   │   ├── 📂 src
+│   │   │   ├── 📂 components
+│   │   │   │   ├── 📄 button.spec.ts
+│   │   │   │   ├── 📄 card.spec.ts
+│   │   │   │   └── 📄 input.spec.ts
+│   │   │   ├── 📂 lib
+│   │   │   │   ├── 📄 utils.spec.ts
+│   │   │   │   └── 📄 utils.ts
+│   │   │   ├── 📄 index.css
+│   │   │   └── 📄 index.ts
+│   │   ├── 📄 package.json
+│   │   ├── 📄 tailwind.config.ts
+│   │   ├── 📄 tsconfig.json
+│   │   └── 📄 tsup.config.ts
+│   ├── 📂 validators
+│   │   ├── 📂 src
+│   │   │   ├── 📂 auth
+│   │   │   │   ├── 📄 login.schema.spec.ts
+│   │   │   │   └── 📄 login.schema.ts
+│   │   │   ├── 📂 orders
+│   │   │   │   ├── 📄 create-order.schema.spec.ts
+│   │   │   │   └── 📄 create-order.schema.ts
+│   │   │   ├── 📂 products
+│   │   │   │   ├── 📄 create-product.schema.spec.ts
+│   │   │   │   └── 📄 create-product.schema.ts
+│   │   │   ├── 📂 provisioning
+│   │   │   │   ├── 📄 create-tenant.schema.spec.ts
+│   │   │   │   ├── 📄 create-tenant.schema.ts
+│   │   │   │   ├── 📄 stripe-webhook.schema.spec.ts
+│   │   │   │   └── 📄 stripe-webhook.schema.ts
+│   │   │   └── 📄 index.ts
+│   │   └── 📄 package.json
+│   ├── 📄 final_final_output.txt
+│   ├── 📄 ps_final_verification.txt
+│   ├── 📄 ps_server_out.txt
+│   ├── 📄 server_out.txt
+│   └── 📄 test_file.txt
+├── 📂 scripts
+│   ├── 📂 nuclear
+│   │   ├── 📄 flash-mob.js
+│   │   ├── 📄 monitor-db.sh ➤ !/bin/bash
+│   │   ├── 📄 network-flake.js
+│   │   └── 📄 setup-fingerprints.ts
+│   ├── 📄 constitutional-audit.ts
+│   ├── 📄 db-migrate-customer.ts ➤ !/usr/bin/env bun
+│   ├── 📄 mass-provision.ts
+│   ├── 📄 migrate-pii.ts
+│   ├── 📄 nuclear-mcp.spec.ts
+│   ├── 📄 nuclear-test-phase-1.ts ➤ !/usr/bin/env bun
+│   ├── 📄 penetration-test.ts ➤ !/usr/bin/env bun
+│   ├── 📄 provision-demo-store.sql
+│   ├── 📄 provision-tenant.ts ➤ !/usr/bin/env bun
+│   ├── 📄 remediate-audit-security.sql
+│   ├── 📄 reset-password.js ➤ !/usr/bin/env node
+│   ├── 📄 seed-admin.ts
+│   ├── 📄 test-s1.ts
+│   ├── 📄 ultimate-verify.ts ➤ !/usr/bin/env bun
+│   ├── 📄 verify-infrastructure.ts ➤ !/usr/bin/env bun
+│   └── 📄 verify-sentry.ts ➤ !/usr/bin/env bun
+├── 📂 tests
+│   ├── 📂 provisioning
+│   ├── 📂 security
+│   │   ├── 📄 s1-env-validation.test.ts
+│   │   └── 📄 s6-rate-limiting.test.ts
+│   ├── 📄 nuclear-test-phase-1.spec.ts ➤ !/usr/bin/env bun
+│   ├── 📄 quick-security-check.spec.ts ➤ !/usr/bin/env bun
+│   ├── 📄 README-SECURITY-TESTS.md
+│   ├── 📄 run-security-tests.sh ➤ !/bin/bash
+│   └── 📄 ultimate-security-test.spec.ts ➤ !/usr/bin/env bun
+├── 📄 accept.sh ➤ !/bin/bash
+├── 📄 biome.json
+├── 📄 create_schema_tests.sh ➤ !/bin/bash
+├── 📄 docker-compose.override.yml
+├── 📄 docker-compose.yml
+├── 📄 EXPECTED_RESULTS.md ➤ Store-#01 Expected Results Guide
+├── 📄 package.json
+├── 📄 penetration-test.ts
+├── 📄 seed-super-admin.ts
+├── 📄 server-start.sh ➤ !/bin/bash
+├── 📄 tsconfig.json
+└── 📄 turbo.json
