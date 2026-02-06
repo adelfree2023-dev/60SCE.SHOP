@@ -48,6 +48,8 @@ export function tenantTable(tenantId: string, tableName: string): string {
 export * from "drizzle-orm";
 export * from "./schema/audit-logs";
 export * from "./schema/tenants";
+export * from "./schema/users";
+export * from "./schema/blueprints";
 export * from "./schema/addresses";
 export * from "./schema/wallet-transactions";
 export * from "./schema/wishlist";
