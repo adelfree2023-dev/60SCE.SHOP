@@ -1,10 +1,14 @@
 #!/usr/bin/env bun
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+import * as crypto from 'crypto';
 import { env } from '../packages/config/src/index';
 import { SchemaCreatorService } from '../packages/provisioning/src/services/schema-creator.service';
 import { DataSeederService } from '../packages/provisioning/src/services/data-seeder.service';
 import { TraefikRouterService } from '../packages/provisioning/src/services/traefik-router.service';
+
+// Use a simple encryption/hashing helper for PII
+const hashEmail = (email: string) => crypto.createHash('sha256').update(email.toLowerCase()).digest('hex');
 
 const pool = new Pool({ connectionString: env.DATABASE_URL });
 const db = drizzle(pool);
@@ -35,12 +39,18 @@ async function provisionTenant(name: string, email: string) {
 
         // PHASE 4: Register Tenant
         console.log('\n📝 PHASE 4: Tenant Registration');
+        const tenantId = crypto.randomUUID();
+        const schemaNameFinal = `tenant_${tenantId}`;
+
+        // We need to rename the schema created in Phase 1 to match the ID
+        await pool.query(`ALTER SCHEMA ${schemaName} RENAME TO ${schemaNameFinal}`);
+
         await pool.query(`
-      INSERT INTO public.tenants (name, subdomain, owner_email, status)
-      VALUES ($1, $2, $3, 'active')
+      INSERT INTO public.tenants (id, name, subdomain, owner_email, owner_email_hash, status)
+      VALUES ($1, $2, $3, $4, $5, 'active')
       ON CONFLICT (subdomain) DO NOTHING
-    `, [name, name, email]);
-        console.log(`✅ Tenant registered in public.tenants`);
+    `, [tenantId, name, name, email, hashEmail(email)]);
+        console.log(`✅ Tenant registered in public.tenants with ID: ${tenantId}`);
 
         // PHASE 5: Audit Logging
         console.log('\n📝 PHASE 5: Audit Logging (S4)');
