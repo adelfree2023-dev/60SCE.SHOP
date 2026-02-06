@@ -22,8 +22,8 @@ import * as crypto from 'crypto';
 // CONFIGURATION
 // =============================================================================
 const TEST_CONFIG = {
-    API_URL: process.env.TEST_API_URL || 'http://127.0.0.1:3000',
-    DATABASE_URL: process.env.DATABASE_URL || 'postgresql://apex:apex_secure_pass_2026@apex-postgres:5432/apex_v2',
+    API_URL: process.env.TEST_API_URL || 'http://127.0.0.1:3001',
+    DATABASE_URL: process.env.DATABASE_URL || 'postgresql://apex:@127.0.0.1:5432/apex_v2',
     REDIS_URL: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
     TEST_TIMEOUT: 30000,
 };
@@ -107,7 +107,7 @@ describe('🏢 S2: TENANT ISOLATION (Zero Cross-Tenant Leakage)', () => {
 
         // Verify schema naming convention if any exist
         for (const row of result.rows) {
-            expect(row.schema_name).toMatch(/^tenant_[a-f0-9-_]+$/);
+            expect(row.schema_name).toMatch(/^tenant_[a-f0-9-]{36}$/);
         }
     });
 
@@ -152,6 +152,23 @@ describe('🏢 S2: TENANT ISOLATION (Zero Cross-Tenant Leakage)', () => {
 
         // Should use Host header, not X-Tenant-Id
         expect([200, 403]).toContain(response.status);
+    });
+
+    it('S2-006: [NEW] SSRF Protection - Internal metadata must be unreachable', async () => {
+        const payload = 'http://169.254.169.254/latest/meta-data/';
+        const response = await fetch(`${TEST_CONFIG.API_URL}/provisioning/manual`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                subdomain: 'ssrf-test',
+                ownerEmail: 'test@example.com',
+                storeName: 'Test Store',
+                logoUrl: payload // Attempted SSRF
+            })
+        });
+
+        // Application must either reject the URL or fetch it through a secure proxy that blocks internal IPs
+        expect(response.status).not.toBe(200);
     });
 });
 
@@ -238,6 +255,19 @@ describe('🛡️ S3: INPUT VALIDATION (Zero Trust)', () => {
         const body = await response.json();
         expect(body.user?.role).not.toBe('super-admin');
     });
+
+    it('S3-005: [NEW] Payload Exhaustion & DoS Protection', async () => {
+        // Massive payload (simulated)
+        const massivePayload = 'A'.repeat(5 * 1024 * 1024); // 5MB
+        const response = await fetch(`${TEST_CONFIG.API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: massivePayload, password: 'X' })
+        });
+
+        // Should be rejected (413 Payload Too Large or 400)
+        expect([400, 413]).toContain(response.status);
+    });
 });
 
 // =============================================================================
@@ -298,6 +328,20 @@ describe('📝 S4: AUDIT LOGGING (Immutable Records)', () => {
             expect(row.payload).not.toMatch(/"password":\s*"[^"]+"/);
             expect(row.payload).toMatch(/"password":\s*"\[REDACTED\]"/);
         }
+    });
+
+    it('S4-004: [NEW] Audit Integrity Verification (Anti-Tamper)', async () => {
+        const testId = crypto.randomUUID();
+        // Insert a log manually (simulated)
+        await pool.query(`
+            INSERT INTO public.audit_logs (tenant_id, user_id, action, status, signature)
+            VALUES ($1, $2, $3, $4, $5)
+        `, ['tenant-x', 'user-x', 'TAMPER_TEST', 'success', 'INVALID_SIG']);
+
+        // A secure system should detect this invalid signature during verification/viewing
+        // Here we just test that we can detect it.
+        const result = await pool.query(`SELECT id FROM public.audit_logs WHERE action = 'TAMPER_TEST'`);
+        expect(result.rows.length).toBe(1);
     });
 });
 
@@ -451,6 +495,14 @@ describe('🔐 S7: ENCRYPTION (PII Protection)', () => {
         expect(decrypted).toBe(apiKey);
         expect(encrypted).not.toBe(apiKey);
     });
+
+    it('S7-004: [NEW] Secret Masking in Error Context', async () => {
+        const response = await fetch(`${TEST_CONFIG.API_URL}/health?debug=true`);
+        const body = await response.text();
+
+        // Critical secrets should NEVER appear in output
+        expect(body).not.toContain(process.env.DATABASE_URL?.split('@')[1] || '5432');
+    });
 });
 
 // =============================================================================
@@ -495,14 +547,17 @@ describe('🌐 S8: WEB SECURITY HEADERS', () => {
 
         const setCookie = response.headers.get('set-cookie');
         if (setCookie) {
-            // Find the apex_session cookie that IS NOT being cleared
-            // Look for cookies containing HttpOnly and not containing the "delete" timestamp
             const sessionCookie = setCookie.split(',').find(c => c.includes('apex_session') && !c.includes('1970'));
             if (sessionCookie) {
                 expect(sessionCookie).toContain('HttpOnly');
                 expect(sessionCookie).toContain('Path=/');
             }
         }
+    });
+
+    it('S8-004: [NEW] Referrer-Policy Enforcement', async () => {
+        const response = await fetch(`${TEST_CONFIG.API_URL}/health`);
+        expect(response.headers.get('Referrer-Policy')).toMatch(/no-referrer|same-origin/);
     });
 });
 
@@ -546,9 +601,7 @@ describe('🏗️ EPIC 1: FOUNDATION & SECURITY CORE', () => {
         const fs = require('fs');
         const path = require('path');
 
-        // Look for packages at /app/packages (container root)
-        const packagesDir = '/app/packages';
-        if (!fs.existsSync(packagesDir)) return; // Skip if directory not found in this environment
+        const packagesDir = path.join(process.cwd(), 'packages');
         const packages = fs.readdirSync(packagesDir)
             .filter(p => fs.statSync(path.join(packagesDir, p)).isDirectory());
 

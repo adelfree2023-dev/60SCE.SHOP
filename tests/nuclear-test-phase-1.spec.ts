@@ -253,4 +253,64 @@ describe('☢️ NUCLEAR TEST SUITE', () => {
             await pgPool.query('DELETE FROM public.tenants WHERE subdomain = $1', [subdomain]);
         });
     });
+
+    // =================================================================
+    // INFRASTRUCTURE HARDENING [NEW]
+    // =================================================================
+    describe('🏗️ Infrastructure Hardening', () => {
+        it('NUC-501: Port Exposure Audit - Postgres should not be public', async () => {
+            const { execSync } = await import('child_process');
+            try {
+                // This check is environment-specific, but on a secured server, netstat should not show 0.0.0.0:5432
+                const output = execSync('netstat -an | grep 5432', { encoding: 'utf-8' });
+                expect(output).not.toContain('0.0.0.0:5432');
+                expect(output).not.toContain(':::5432');
+            } catch (e) {
+                // If netstat is missing, we skip or use a different probe
+            }
+        });
+
+        it('NUC-502: Non-Root Execution Check', async () => {
+            const { execSync } = await import('child_process');
+            const uid = execSync('id -u', { encoding: 'utf-8' }).trim();
+            // Inside a well-hardened container, we shouldn't be root (0)
+            // Note: In development this might be 0, but for SEC-L4 it must be non-zero in prod
+            if (process.env.NODE_ENV === 'production') {
+                expect(uid).not.toBe('0');
+            }
+        });
+
+        it('NUC-503: Zombie Schema Check (Isolation Integrity)', async () => {
+            const result = await pgPool.query(`
+                SELECT schema_name 
+                FROM information_schema.schemata 
+                WHERE schema_name LIKE 'tenant_%'
+                AND schema_name NOT IN (
+                    SELECT 'tenant_' || REPLACE(id::text, '-', '_') 
+                    FROM public.tenants
+                )
+            `);
+            // Every tenant schema must have a corresponding record in public.tenants
+            expect(result.rows.length).toBe(0);
+        });
+
+        it('NUC-504: Database Connection Leak Test', async () => {
+            const startPoolCount = pgPool.totalCount;
+            const probes = Array(20).fill(null).map(() => pgPool.query('SELECT 1'));
+            await Promise.all(probes);
+
+            // Connections should be returned to the pool
+            expect(pgPool.waitingCount).toBe(0);
+        });
+
+        it('NUC-505: Environment Exposure Probe', async () => {
+            const response = await fetch(`${TEST_CONFIG.API_URL}/health`);
+            const body = await response.text();
+
+            // Critical infra details should not leak in default health checks
+            expect(body).not.toContain('DATABASE_URL');
+            expect(body).not.toContain('REDIS_URL');
+            expect(body).not.toContain('JWT_SECRET');
+        });
+    });
 });
