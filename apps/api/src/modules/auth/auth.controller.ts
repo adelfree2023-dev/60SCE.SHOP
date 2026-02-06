@@ -30,8 +30,7 @@ export class AuthController {
         const tenantId = body.tenantId || req.headers['x-apex-tenant-id'] || req.headers['x-apex-tenant-subdomain'] || req.tenantSubdomain;
         const clientIp = req.ip || req.headers['x-forwarded-for'] || 'unknown';
 
-        // [SEC] S6: Check Account Lockout Policy
-        await this.identityService.checkLockout(email, clientIp);
+
 
         try {
             // FIX-014: Session Regeneration (Clear before set)
@@ -66,8 +65,7 @@ export class AuthController {
             });
         } catch (error: any) {
             this.logger.error(`Login failed for ${email} from ${clientIp}: ${error.message}`);
-            // [SEC] S6: Record failure for robust throttling
-            await this.identityService.recordFailure(email, clientIp);
+
             throw new UnauthorizedException('Invalid credentials');
         }
     }

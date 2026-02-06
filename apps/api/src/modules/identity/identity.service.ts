@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, Logger, Inject } from '@nestjs/commo
 import { Pool } from 'pg';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import * as crypto from 'crypto';
+
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { EncryptionService } from '@apex/encryption';
