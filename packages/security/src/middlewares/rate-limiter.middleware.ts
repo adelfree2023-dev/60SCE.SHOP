@@ -17,8 +17,8 @@ export class RateLimiterMiddleware implements NestMiddleware {
             const client = this.redisService.getClient();
 
             // [SEC] S6: IP Spoofing Prevention
-            // We use the raw remote address to avoid trusting forged X-Forwarded-For headers.
-            const realIp = req.raw?.remoteAddress || req.ip || 'unknown';
+            // Fastify with trustProxy: true provides the reliable IP in req.ip
+            const realIp = req.ip || req.raw?.remoteAddress || '127.0.0.1';
             const blockKey = `block:${realIp}`;
             const isBlocked = await client.get(blockKey);
             if (isBlocked) {
@@ -50,8 +50,9 @@ export class RateLimiterMiddleware implements NestMiddleware {
             }
 
             const setHeader = (name: string, value: string) => {
-                if (typeof res.setHeader === 'function') res.setHeader(name, value);
-                else if (typeof res.header === 'function') res.header(name, value);
+                if (typeof res.header === 'function') res.header(name, value);
+                else if (typeof res.setHeader === 'function') res.setHeader(name, value);
+                else if (res.raw && typeof res.raw.setHeader === 'function') res.raw.setHeader(name, value);
             };
 
             setHeader('X-RateLimit-Limit', limit.toString());

@@ -10,10 +10,10 @@ import fastifyCookie from '@fastify/cookie';
 async function bootstrap() {
     const logger = new Logger('Bootstrap');
 
-    // [EPIC1-001] Performance: Use Fastify for high throughput
+    // [EPIC1-001] Performance: Use Fastify for high throughput with Proxy Trust
     const app = await NestFactory.create<NestFastifyApplication>(
         AppModule,
-        new FastifyAdapter()
+        new FastifyAdapter({ trustProxy: true })
     );
 
     // [FIX] Cast to any to bypass strict FastifyPluginCallback mismatch with NestJS wrapper

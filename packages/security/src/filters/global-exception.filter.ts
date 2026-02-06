@@ -35,6 +35,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         const tenant = (request as any).tenantSubdomain || 'public';
         const path = (request as any).url || request.url;
 
+        // [SEC-019] Safe Serialization to prevent hangs on circular references
+        const safeException = exception instanceof Error
+            ? { message: exception.message, stack: exception.stack }
+            : typeof exception === 'object' ? JSON.parse(JSON.stringify(exception, Object.getOwnPropertyNames(exception))) : exception;
+
         const logPayload = {
             requestId,
             tenant,
@@ -42,7 +47,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             path,
             method: (request as any).method || 'UNKNOWN',
             status,
-            exception: exception instanceof Error ? exception.stack : exception,
+            exception: safeException,
         };
 
         if (status >= 500) {
@@ -65,6 +70,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         // 3. FASTIFY / NATIVE COMPATIBILITY
         try {
             if (typeof response.status === 'function' && typeof response.send === 'function') {
+                const setHeader = (name: string, value: string) => {
+                    // Use the response object directly, which is 'response' here, not 'res'
+                    if (typeof response.header === 'function') (response as any).header(name, value);
+                    else if (typeof response.setHeader === 'function') (response as any).setHeader(name, value);
+                };
                 // Fastified Response (Standard for our NestJS setup)
                 response.status(status).send(errorResponse);
             } else if (typeof response.code === 'function' && typeof response.send === 'function') {
