@@ -81,7 +81,7 @@ describe('🏢 S2: TENANT ISOLATION (Zero Cross-Tenant Leakage)', () => {
         // CLEANUP: Drop "ghost" schemas from previous failed runs to pass S2-001
         try {
             await pool.query("DROP SCHEMA IF EXISTS tenant_adel2gmailcom CASCADE");
-        } catch (e) {}
+        } catch (e) { }
     });
 
     afterAll(async () => {
@@ -123,7 +123,9 @@ describe('🏢 S2: TENANT ISOLATION (Zero Cross-Tenant Leakage)', () => {
         const safeQuery = format.default('SET search_path TO %I, public', maliciousSchema);
 
         // Should contain escaped identifier, not raw injection
-        expect(safeQuery).not.toContain('DROP TABLE');
+        // Should contain escaped identifier (doubled quotes)
+        // pg-format wraps the identifier in quotes and double-quotes internal quotes
+        expect(safeQuery).toContain('"tenant_123""; DROP TABLE tenants; --"');
         expect(safeQuery).toContain('"');
     });
 
@@ -278,9 +280,9 @@ describe('📝 S4: AUDIT LOGGING (Immutable Records)', () => {
     it('S4-003: PII must be redacted in audit logs', async () => {
         const result = await pool.query(`
       SELECT payload FROM public.audit_logs 
-      WHERE payload ILIKE '%password%' 
-         OR payload ILIKE '%creditCard%'
-         OR payload ILIKE '%ssn%'
+      WHERE payload::text ILIKE '%password%' 
+         OR payload::text ILIKE '%creditCard%'
+         OR payload::text ILIKE '%ssn%'
       LIMIT 10
     `);
 
@@ -433,6 +435,8 @@ describe('🔐 S7: ENCRYPTION (PII Protection)', () => {
         // API keys need to be retrievable, so they should be encrypted not hashed
         const { EncryptionService } = await import('@apex/encryption');
         const service = new EncryptionService();
+        // Manually init secret for test context
+        Object.defineProperty(service, 'masterSecret', { value: 'test-secret-at-least-32-chars-long-123', writable: true });
 
         const apiKey = 'sk_live_1234567890abcdef';
         const encrypted = await service.encryptDbValue(apiKey);
