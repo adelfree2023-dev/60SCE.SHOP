@@ -67,31 +67,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
                 : typeof message === 'string' ? message : (message as any).message || 'Internal Server Error',
         };
 
-        // 3. FASTIFY / NATIVE COMPATIBILITY (Optimized for performance/no-hang)
+        // 3. FASTIFY / NATIVE COMPATIBILITY
         try {
-            // [SEC] ARCH-S1: No-Hang Dispatch Logic
-            const raw = response.raw || response;
+            if (response.status && typeof response.status === 'function') {
+                return response.status(status).send(errorResponse);
+            }
 
-            if (response.status && typeof response.status === 'function' && response.send && typeof response.send === 'function') {
-                response.status(status).send(errorResponse);
-            } else if (raw && typeof raw.setHeader === 'function') {
+            // Fallback for raw response objects (if any)
+            const raw = response.raw || response;
+            if (raw && typeof raw.setHeader === 'function' && !raw.writableEnded) {
                 raw.statusCode = status;
                 raw.setHeader('Content-Type', 'application/json');
                 raw.end(JSON.stringify(errorResponse));
-            } else {
-                this.logger.error('CRITICAL: Response object is unusable for status/send');
-                if (raw && typeof raw.end === 'function') raw.end(JSON.stringify(errorResponse));
             }
         } catch (err: any) {
             this.logger.error(`Failed to dispatch error response: ${err.message}`);
-            // Fallback to raw Node response if possible
-            try {
-                const raw = response.raw || response;
-                if (raw && !raw.writableEnded) {
-                    raw.statusCode = status;
-                    raw.end(JSON.stringify({ statusCode: status, message: 'Internal Server Error (Emergency Fallback)' }));
-                }
-            } catch (e) { }
         }
     }
 }
