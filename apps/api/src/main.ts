@@ -4,7 +4,7 @@ import { Logger } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
-import compression from 'compression';
+import * as compression from 'compression';
 import fastifyCookie from '@fastify/cookie';
 
 async function bootstrap() {
@@ -12,10 +12,12 @@ async function bootstrap() {
 
     // [EPIC1-001] Performance: Use Fastify for high throughput
     const app = await NestFactory.create<NestFastifyApplication>(
+        AppModule,
         new FastifyAdapter()
     );
 
-    await app.register(fastifyCookie);
+    // [FIX] Cast to any to bypass strict FastifyPluginCallback mismatch with NestJS wrapper
+    await app.register(fastifyCookie as any);
 
     const configService = app.get(ConfigService);
     const jwtSecret = configService.get<string>('JWT_SECRET');
