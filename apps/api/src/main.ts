@@ -4,7 +4,7 @@ import { Logger } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
-import * as compression from 'compression';
+import compression from 'compression';
 import fastifyCookie from '@fastify/cookie';
 
 async function bootstrap() {
