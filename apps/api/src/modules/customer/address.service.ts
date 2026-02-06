@@ -22,11 +22,18 @@ export class AddressService {
         );
 
         // Decrypt PII fields
-        return Promise.all(result.rows.map(async (addr: any) => ({
+        const addresses = await Promise.all(result.rows.map(async (addr: any) => ({
             ...addr,
             phone: await this.encryptionService.decryptDbValue(addr.phone),
             street: await this.encryptionService.decryptDbValue(addr.street),
         })));
+
+        // [SEC] S4: Audit PII Access
+        if (addresses.length > 0) {
+            await this.logAudit(request, 'ADDRESS_PII_DECRYPT', userId, { count: addresses.length });
+        }
+
+        return addresses;
     }
 
     /**
@@ -54,6 +61,10 @@ export class AddressService {
         );
 
         this.logger.log(`📍 Address created for user ${userId}: ${result.rows[0].id}`);
+
+        // [SEC] S4: Audit Trail
+        await this.logAudit(request, 'ADDRESS_CREATE', result.rows[0].id, { userId });
+
         return { id: result.rows[0].id, success: true };
     }
 
@@ -95,6 +106,9 @@ export class AddressService {
         values.push(addressId);
         await client.query(`UPDATE addresses SET ${fields.join(', ')} WHERE id = $${idx}`, values);
 
+        // [SEC] S4: Audit Trail
+        await this.logAudit(request, 'ADDRESS_UPDATE', addressId, { userId, fields: fields.map(f => f.split(' ')[0]) });
+
         return { success: true };
     }
 
@@ -109,6 +123,9 @@ export class AddressService {
         if (result.rows.length === 0) {
             throw new ForbiddenException('Address not found or not owned by user');
         }
+
+        // [SEC] S4: Audit Trail
+        await this.logAudit(request, 'ADDRESS_DELETE', addressId, { userId });
 
         return { success: true };
     }
@@ -130,6 +147,26 @@ export class AddressService {
         await client.query(`UPDATE addresses SET is_default = false WHERE user_id = $1`, [userId]);
         await client.query(`UPDATE addresses SET is_default = true WHERE id = $1`, [addressId]);
 
+        // [SEC] S4: Audit Trail
+        await this.logAudit(request, 'ADDRESS_SET_DEFAULT', addressId, { userId });
+
         return { success: true };
+    }
+
+    private async logAudit(request: any, action: string, targetId: string, metadata: any) {
+        const client = request.dbClient || request.raw?.dbClient;
+        if (!client) return;
+
+        const actorId = request.user?.id || 'system';
+        const tenantId = request.tenantId || 'unknown';
+
+        try {
+            await client.query(
+                'INSERT INTO public.audit_logs (action, actor_id, target_id, metadata, tenant_id) VALUES ($1, $2, $3, $4, $5)',
+                [action, actorId, targetId, JSON.stringify(metadata), tenantId]
+            );
+        } catch (e) {
+            this.logger.error(`Failed to write audit log: ${e.message}`);
+        }
     }
 }

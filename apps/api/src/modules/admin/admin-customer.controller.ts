@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Body, Param, Req, UseGuards, Logger, Query, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards, Logger, Query, ForbiddenException, UseInterceptors } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { AuditLoggerInterceptor } from '../../common/interceptors/audit-logger.interceptor';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { WalletService } from '../customer/wallet.service';
 import { RolesGuard, Roles } from '@apex/security';
@@ -10,6 +12,7 @@ import { RolesGuard, Roles } from '@apex/security';
  */
 @Controller('admin/customers')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@UseInterceptors(AuditLoggerInterceptor)
 @Roles('merchant', 'super-admin', 'admin')
 export class AdminCustomerController {
     private readonly logger = new Logger(AdminCustomerController.name);
@@ -23,10 +26,12 @@ export class AdminCustomerController {
      * List all customers in tenant (with basic info only - no PII)
      */
     @Get()
+    @Throttle({ default: { limit: 10, ttl: 60000 } })
     async listCustomers(@Req() request: any, @Query('search') search?: string) {
         const client = request.dbClient || request.raw?.dbClient;
         if (!client) throw new ForbiddenException('TENANT_CONTEXT_MISSING');
 
+        // [SEC] S3: Standardized parameterized query
         let query = `
             SELECT 
                 u.id,
@@ -65,9 +70,15 @@ export class AdminCustomerController {
      * Get customer details (limited - no sensitive PII)
      */
     @Get(':id')
+    @Throttle({ default: { limit: 10, ttl: 60000 } })
     async getCustomer(@Req() request: any, @Param('id') customerId: string) {
         const client = request.dbClient || request.raw?.dbClient;
         if (!client) throw new ForbiddenException('TENANT_CONTEXT_MISSING');
+
+        // [SEC] S3: Validate UUID format
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(customerId)) {
+            throw new ForbiddenException('Invalid customer ID format');
+        }
 
         // Basic customer info (NO full address, NO payment tokens)
         const userResult = await client.query(
@@ -112,12 +123,17 @@ export class AdminCustomerController {
      * [SEC] S4: Action is logged in audit trail
      */
     @Post(':id/wallet/credit')
+    @Throttle({ default: { limit: 5, ttl: 60000 } })
     async addWalletCredit(
         @Req() request: any,
         @Param('id') customerId: string,
         @Body() dto: { amount: number; reason: string }
     ) {
         this.logger.log(`💰 Admin ${request.user.id} crediting ${dto.amount} to customer ${customerId}`);
+
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(customerId)) {
+            throw new ForbiddenException('Invalid customer ID format');
+        }
 
         // Validate amount
         if (!dto.amount || dto.amount <= 0 || dto.amount > 1000) {

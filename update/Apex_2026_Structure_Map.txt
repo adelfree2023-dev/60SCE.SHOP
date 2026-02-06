@@ -1,8 +1,8 @@
 ﻿========================================================
 🗺️  PROJECT STRUCTURE MAP
 ========================================================
-📅 Generated: 2026-02-06 13:29
-📂 Files Included: 341
+📅 Generated: 2026-02-06 20:42
+📂 Files Included: 346
 🚫 Noise Filtered: Lockfiles, Logs, Assets
 🔒 Security Filter: ACTIVE
 ========================================================
@@ -238,6 +238,7 @@
 │   ├── 📄 architecture.md ➤ 🏗️ Apex v2: Modern Secure Multi-Tenant Archite...
 │   ├── 📄 landing-page-masterlist.md ➤ 🌐 Apex v2 Marketing Website: Master Page List
 │   ├── 📄 plan.md ➤ 📜 APEX V2 FINAL MASTER EXECUTION REGISTER
+│   ├── 📄 server-architecture.md ➤ Apex V2 Server Architecture & Infrastructure
 │   ├── 📄 store-features-masterlist.md ➤ 🛒 Apex v2 Storefront: Master Page & Feature List
 │   ├── 📄 super-admin-masterlist.md ➤ 👑 Apex v2 Super Admin: Platform Governance (Go...
 │   └── 📄 🧱 Apex v2 Strategic Roadmap & Lego-Architecture Blueprint .md ➤ 🧱 Apex v2 Strategic Roadmap & Lego-Architectur...
@@ -293,6 +294,7 @@
 │   │   │   │   ├── 📄 audit-logs.spec.spec.ts
 │   │   │   │   ├── 📄 audit-logs.spec.ts
 │   │   │   │   ├── 📄 audit-logs.ts
+│   │   │   │   ├── 📄 blueprints.spec.ts
 │   │   │   │   ├── 📄 blueprints.ts
 │   │   │   │   ├── 📄 index.ts
 │   │   │   │   ├── 📄 support-tickets.spec.ts
@@ -302,6 +304,7 @@
 │   │   │   │   ├── 📄 tenants.ts
 │   │   │   │   ├── 📄 user-sessions.spec.ts
 │   │   │   │   ├── 📄 user-sessions.ts
+│   │   │   │   ├── 📄 users.spec.ts
 │   │   │   │   ├── 📄 users.ts
 │   │   │   │   ├── 📄 wallet-transactions.spec.ts
 │   │   │   │   ├── 📄 wallet-transactions.ts
@@ -459,9 +462,11 @@
 │   ├── 📄 penetration-test.ts ➤ !/usr/bin/env bun
 │   ├── 📄 provision-demo-store.sql
 │   ├── 📄 provision-tenant.ts ➤ !/usr/bin/env bun
+│   ├── 📄 purge-environment.ts
 │   ├── 📄 remediate-audit-security.sql
 │   ├── 📄 reset-password.js ➤ !/usr/bin/env node
 │   ├── 📄 seed-admin.ts
+│   ├── 📄 seed-blueprints.ts
 │   ├── 📄 test-s1.ts
 │   ├── 📄 ultimate-verify.ts ➤ !/usr/bin/env bun
 │   ├── 📄 verify-infrastructure.ts ➤ !/usr/bin/env bun

@@ -35,7 +35,11 @@ export class MailService {
         }
 
         // [FIX-012] Step 2: HTML Sanitization (XSS Prevention)
-        const sanitizedHtml = DOMPurify.sanitize(options.html);
+        // [SEC] S8: Restricted to practically zero tags for maximum security
+        const sanitizedHtml = DOMPurify.sanitize(options.html, {
+            ALLOWED_TAGS: [], // [SEC] S8: Block ALL HTML tags for maximum security
+            ALLOWED_ATTR: []
+        });
 
         try {
             await this.transporter.sendMail({

@@ -76,6 +76,10 @@ export class WishlistService {
                 [userId, productId, currentPrice]
             );
             this.logger.log(`❤️ Product ${productId} added to wishlist for user ${userId}`);
+
+            // [SEC] S4: Audit Trail
+            await this.logAudit(request, 'WISHLIST_ADD', productId, { userId });
+
             return { success: true };
         } catch (error: any) {
             if (error.code === '23505') { // Unique violation
@@ -101,6 +105,9 @@ export class WishlistService {
             throw new NotFoundException('Product not in wishlist');
         }
 
+        // [SEC] S4: Audit Trail
+        await this.logAudit(request, 'WISHLIST_REMOVE', productId, { userId });
+
         return { success: true };
     }
 
@@ -123,5 +130,22 @@ export class WishlistService {
         }
 
         return { notifyOnSale: result.rows[0].notify_on_sale };
+    }
+
+    private async logAudit(request: any, action: string, targetId: string, metadata: any) {
+        const client = request.dbClient || request.raw?.dbClient;
+        if (!client) return;
+
+        const actorId = request.user?.id || 'system';
+        const tenantId = request.tenantId || 'unknown';
+
+        try {
+            await client.query(
+                'INSERT INTO public.audit_logs (action, actor_id, target_id, metadata, tenant_id) VALUES ($1, $2, $3, $4, $5)',
+                [action, actorId, targetId, JSON.stringify(metadata), tenantId]
+            );
+        } catch (e) {
+            this.logger.error(`Failed to write audit log: ${e.message}`);
+        }
     }
 }

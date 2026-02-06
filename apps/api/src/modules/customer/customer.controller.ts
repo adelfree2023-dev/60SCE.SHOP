@@ -1,14 +1,20 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Req, UseGuards, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Req, UseGuards, Logger, UseInterceptors } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { AddressService } from './address.service';
 import { WalletService } from './wallet.service';
 import { WishlistService } from './wishlist.service';
 import { CreateAddressDto, UpdateAddressDto } from './dto/address.dto';
+import { ChangePasswordSchema, ChangePasswordDto } from './dto/customer.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { IdentityService } from '../identity/identity.service';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
+import { UsePipes } from '@nestjs/common';
+import { AuditLoggerInterceptor } from '../../common/interceptors/audit-logger.interceptor';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('customer')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(AuditLoggerInterceptor)
 export class CustomerController {
     private readonly logger = new Logger(CustomerController.name);
 
@@ -21,9 +27,10 @@ export class CustomerController {
     ) { }
 
     @Post('change-password')
-    async changePassword(@Req() request: any, @Body() dto: any) {
-        const { currentPassword, newPassword } = dto;
-        return this.identityService.changePassword(request.user.id, currentPassword, newPassword);
+    @UsePipes(new ZodValidationPipe(ChangePasswordSchema))
+    @Throttle({ default: { limit: 5, ttl: 60000 } })
+    async changePassword(@Req() request: any, @Body() dto: ChangePasswordDto) {
+        return this.identityService.changePassword(request.user.id, dto.currentPassword, dto.newPassword);
     }
 
     /**
@@ -32,6 +39,7 @@ export class CustomerController {
      * [SEC] S2: Fetches global data (name/email) + tenant-specific data (addresses/orders)
      */
     @Get('me')
+    @Throttle({ default: { limit: 20, ttl: 60000 } })
     async getMyProfile(@Req() request: any) {
         this.logger.log(`📋 Fetching profile for user: ${request.user.id}`);
         return this.customerService.getAggregatedProfile(request);
@@ -42,6 +50,7 @@ export class CustomerController {
     // ═══════════════════════════════════════════════════════════
 
     @Get('addresses')
+    @Throttle({ default: { limit: 10, ttl: 60000 } })
     async getAddresses(@Req() request: any) {
         return this.addressService.findByUser(request, request.user.id);
     }
@@ -71,6 +80,7 @@ export class CustomerController {
     // ═══════════════════════════════════════════════════════════
 
     @Get('wallet')
+    @Throttle({ default: { limit: 10, ttl: 60000 } })
     async getWallet(@Req() request: any) {
         return this.walletService.getBalanceWithHistory(request, request.user.id);
     }
@@ -80,6 +90,7 @@ export class CustomerController {
     // ═══════════════════════════════════════════════════════════
 
     @Get('wishlist')
+    @Throttle({ default: { limit: 10, ttl: 60000 } })
     async getWishlist(@Req() request: any) {
         return this.wishlistService.findByUser(request, request.user.id);
     }
@@ -99,6 +110,7 @@ export class CustomerController {
     // ═══════════════════════════════════════════════════════════
 
     @Get('sessions')
+    @Throttle({ default: { limit: 10, ttl: 60000 } })
     async getSessions(@Req() request: any) {
         return this.identityService.getUserSessions(request.user.id);
     }

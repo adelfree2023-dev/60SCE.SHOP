@@ -338,16 +338,25 @@ describe('📝 S4: AUDIT LOGGING (Immutable Records)', () => {
 
     it('S4-004: [NEW] Audit Integrity Verification (Anti-Tamper)', async () => {
         const testId = crypto.randomUUID();
+        const testAction = `TAMPER_TEST_${testId}`;
+
         // Insert a log manually (simulated)
         await pool.query(`
             INSERT INTO public.audit_logs (tenant_id, user_id, action, status, signature)
             VALUES ($1, $2, $3, $4, $5)
-        `, ['tenant-x', 'user-x', 'TAMPER_TEST', 'success', 'INVALID_SIG']);
+        `, ['tenant-x', 'user-x', testAction, 'success', 'INVALID_SIG']);
 
         // A secure system should detect this invalid signature during verification/viewing
         // Here we just test that we can detect it.
-        const result = await pool.query(`SELECT id FROM public.audit_logs WHERE action = 'TAMPER_TEST'`);
+        const result = await pool.query(`SELECT id FROM public.audit_logs WHERE action = $1`, [testAction]);
         expect(result.rows.length).toBe(1);
+
+        // Cleanup (Note: Triggers usually block this, but we test the query works)
+        try {
+            await pool.query(`DELETE FROM public.audit_logs WHERE action = $1`, [testAction]);
+        } catch (e) {
+            // Expected if immutability is enforced
+        }
     });
 });
 
@@ -358,7 +367,7 @@ describe('⚠️ S5: EXCEPTION HANDLING (No Information Leakage)', () => {
 
     it('S5-001: Production must not expose stack traces', async () => {
         // Force an error
-        const response = await fetch(`${TEST_CONFIG.API_URL}/invalid-route-that-does-not-exist`);
+        const response = await fetch(`${TEST_CONFIG.API_URL}/health/error`);
 
         const body = await response.text();
 

@@ -43,4 +43,11 @@ export class HealthController {
 
         return results;
     }
+
+    @Get('error')
+    @SkipTenantValidation()
+    async triggerError() {
+        // [SEC] S5-001: Used to test production error masking
+        throw new Error('SEC-S5: Forensic Exception Test');
+    }
 }

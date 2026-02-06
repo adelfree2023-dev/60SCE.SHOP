@@ -37,8 +37,20 @@ export class TenantsService {
         const result = await this.pool.query(sql, [...params, limit, offset]);
         const countRes = await this.pool.query(countSql);
 
+        // [SEC] S7: Decrypt owner_email for authorized views
+        const data = await Promise.all(result.rows.map(async (tenant: any) => {
+            if (tenant.owner_email) {
+                try {
+                    tenant.owner_email = await this.encryptionService.decryptDbValue(tenant.owner_email);
+                } catch (e) {
+                    this.logger.error(`Failed to decrypt email for tenant ${tenant.id}: ${e.message}`);
+                }
+            }
+            return tenant;
+        }));
+
         return {
-            data: result.rows,
+            data,
             pagination: {
                 total: parseInt(countRes.rows[0].count),
                 page,
@@ -49,8 +61,16 @@ export class TenantsService {
     }
 
     async findOne(id: string) {
-        const result = await this.pool.query('SELECT * FROM public.tenants WHERE id = ', [id]);
+        // [SEC] S2: Fixed SQL injection by adding $1 placeholder
+        const result = await this.pool.query('SELECT * FROM public.tenants WHERE id = $1', [id]);
         if (result.rows.length === 0) throw new NotFoundException('Tenant not found');
-        return result.rows[0];
+        const tenant = result.rows[0];
+
+        // [SEC] S7: Decrypt owner_email
+        if (tenant.owner_email) {
+            tenant.owner_email = await this.encryptionService.decryptDbValue(tenant.owner_email);
+        }
+
+        return tenant;
     }
 }

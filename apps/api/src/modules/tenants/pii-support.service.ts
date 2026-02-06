@@ -13,10 +13,16 @@ export class PiiSupportService {
 
     /**
      * [DRIFT-008] Audited PII Decryption
-     * Decrypts a specific field for a tenant owner only for authorized support requests.
+     * [SEC] S7: Enforces a Second-Factor gate (pii_authorized flag)
      * Every call is logged with the admin identity.
      */
-    async decryptForSupport(tenantId: string, adminId: string, reason: string): Promise<string> {
+    async decryptForSupport(request: any, tenantId: string, reason: string): Promise<string> {
+        if (!request.pii_authorized) {
+            this.logger.error(`🛑 UNAUTHORIZED PII ACCESS ATTEMPT: ${request.user?.id} on Tenant ${tenantId}`);
+            throw new ForbiddenException('PII_SECOND_FACTOR_REQUIRED');
+        }
+
+        const adminId = request.user?.id || 'system';
         if (!reason || reason.length < 10) {
             throw new ForbiddenException('A valid reason (min 10 chars) is required for PII decryption');
         }

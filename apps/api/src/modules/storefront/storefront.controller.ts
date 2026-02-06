@@ -1,4 +1,5 @@
 import { Controller, Get, Param, UseInterceptors, Logger, HttpCode, Inject, Req, Patch, Put, Body, UseGuards, UsePipes } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { StorefrontService } from './storefront.service';
 import { TenantScopeGuard, SkipTenantScope } from '@apex/security';
@@ -104,6 +105,7 @@ export class StorefrontController {
 
     @SkipTenantScope()
     @Get('home/refresh')
+    @Throttle({ default: { limit: 2, ttl: 60000 } })
     @ApiOperation({
         summary: 'Refresh home page cache',
         description: 'Invalidates and regenerates cache for tenant home page'

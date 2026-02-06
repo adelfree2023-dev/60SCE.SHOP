@@ -57,6 +57,18 @@ export class StorefrontService {
         const tenantSchema = request.tenantSchema || request.raw?.tenantSchema;
         if (!tenantId || !tenantSchema) throw new Error('TENANT_CONTEXT_MISSING');
 
+        // [SEC] S8: Zod URL Validation for CTA
+        const { z } = await import('zod');
+        const HeroSchema = z.object({
+            title: z.string().min(1).max(255),
+            subtitle: z.string().max(1000).optional(),
+            imageUrl: z.string().url().optional().or(z.literal('')),
+            ctaText: z.string().max(50).optional(),
+            ctaUrl: z.string().url().optional().or(z.literal(''))
+        });
+
+        const validated = HeroSchema.parse(dto);
+
         const existing = await this.query(request, format('SELECT id FROM %I.banners ORDER BY priority ASC LIMIT 1', tenantSchema));
 
         if (existing.rows.length > 0) {
@@ -64,13 +76,13 @@ export class StorefrontService {
             await this.query(
                 request,
                 format('UPDATE %I.banners SET title = $1, subtitle = $2, image_url = $3, cta_text = $4, cta_url = $5, active = true WHERE id = $6', tenantSchema),
-                [dto.title, dto.subtitle || null, dto.imageUrl || null, dto.ctaText, dto.ctaUrl, bannerId]
+                [validated.title, validated.subtitle || null, validated.imageUrl || null, validated.ctaText, validated.ctaUrl, bannerId]
             );
         } else {
             await this.query(
                 request,
                 format('INSERT INTO %I.banners (title, subtitle, image_url, cta_text, cta_url, active, priority) VALUES ($1, $2, $3, $4, $5, true, 0)', tenantSchema),
-                [dto.title, dto.subtitle || null, dto.imageUrl || null, dto.ctaText, dto.ctaUrl]
+                [validated.title, validated.subtitle || null, validated.imageUrl || null, validated.ctaText, validated.ctaUrl]
             );
         }
 
@@ -95,9 +107,9 @@ export class StorefrontService {
      * [SEC] S2: Uses pg-format for safe schema interpolation
      */
     async getProducts(request: any) {
-        const tenantSubdomain = request.tenantSubdomain || request.raw?.tenantSubdomain;
-        if (!tenantSubdomain) throw new ForbiddenException('TENANT_CONTEXT_MISSING');
-        const tenantSchema = `tenant_${tenantSubdomain}`;
+        // [SEC] S2: Standardized to use middleware-provided tenantSchema (UUID-based)
+        const tenantSchema = request.tenantSchema || request.raw?.tenantSchema;
+        if (!tenantSchema) throw new ForbiddenException('TENANT_CONTEXT_MISSING');
 
         try {
             const result = await this.query(
@@ -132,9 +144,9 @@ export class StorefrontService {
      * [SEC] S2: Uses pg-format for safe schema interpolation
      */
     async getProductById(request: any, productId: string) {
-        const tenantSubdomain = request.tenantSubdomain || request.raw?.tenantSubdomain;
-        if (!tenantSubdomain) throw new ForbiddenException('TENANT_CONTEXT_MISSING');
-        const tenantSchema = `tenant_${tenantSubdomain}`;
+        // [SEC] S2: Standardized to use middleware-provided tenantSchema (UUID-based)
+        const tenantSchema = request.tenantSchema || request.raw?.tenantSchema;
+        if (!tenantSchema) throw new ForbiddenException('TENANT_CONTEXT_MISSING');
 
         const result = await this.query(
             request,
@@ -171,17 +183,22 @@ export class StorefrontService {
     }
 
     private validateTenantSchema(request: any, sql: string) {
-        const tenantSubdomain = request.tenantSubdomain || request.raw?.tenantSubdomain;
-        if (!tenantSubdomain) throw new Error('TENANT_SUBDOMAIN_MISSING');
+        const expectedSchema = request.tenantSchema || request.raw?.tenantSchema;
+        if (!expectedSchema) throw new Error('TENANT_SCHEMA_MISSING');
 
-        const expectedSchema = `tenant_${tenantSubdomain}`;
+        // [SEC] S2: Strict UUID-based Schema Validation
+        if (!/^tenant_[0-9a-f]{8}_[0-9a-f]{4}_[0-9a-f]{4}_[0-9a-f]{4}_[0-9a-f]{12}$/.test(expectedSchema)) {
+            this.logger.error(`🚨 INVALID SCHEMA FORMAT: ${expectedSchema}`);
+            throw new Error('INVALID_TENANT_SCHEMA_FORMAT');
+        }
 
-        // 1. Ensure any "tenant_xxx" in SQL matches the current tenant
-        const schemaRegex = /tenant_([a-z0-9-]+)/g;
+        // [SEC] S2: Strict UUID-based Schema Validation
+        // Matches tenant_[uuid_with_underscores]
+        const schemaRegex = /tenant_([0-9a-f]{8}_[0-9a-f]{4}_[0-9a-f]{4}_[0-9a-f]{4}_[0-9a-f]{12})/g;
         let match;
         while ((match = schemaRegex.exec(sql)) !== null) {
-            if (match[1] !== tenantSubdomain) {
-                this.logger.error(`🚨 CROSS-TENANT ATTEMPT: ${tenantSubdomain} tried to access ${match[1]}`);
+            if (match[0] !== expectedSchema) {
+                this.logger.error(`🚨 CROSS-TENANT ATTEMPT: ${expectedSchema} tried to access ${match[0]}`);
                 throw new Error('UNAUTHORIZED_SCHEMA_ACCESS');
             }
         }

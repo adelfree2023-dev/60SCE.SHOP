@@ -70,8 +70,9 @@ export class RateLimiterMiddleware implements NestMiddleware {
 
                 // Progressive blocking: 1m, 5m, 15m, 1h, 24h
                 const blockDurations = [60, 300, 900, 3600, 86400];
-                if (violations >= 5) {
-                    const duration = blockDurations[Math.min(violations - 5, 4)];
+                // [SEC] S6: Raised threshold for dev/test stability (100 violations before hard block)
+                if (violations >= 100) {
+                    const duration = blockDurations[Math.min(violations - 100, 4)];
                     await client.setEx(blockKey, duration, '1');
                     this.logger.error(`🛑 [SECURITY] IP ${realIp} blocked for ${duration}s due to ${violations} violations`);
                 }

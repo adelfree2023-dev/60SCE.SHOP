@@ -64,6 +64,10 @@ export class WalletService {
         );
 
         this.logger.log(`💰 Credited ${amount} to user ${userId}, new balance: ${newBalance}`);
+
+        // [SEC] S4: Audit Trail
+        await this.logAudit(request, 'WALLET_CREDIT', userId, { amount, description, adminId });
+
         return { success: true, newBalance };
     }
 
@@ -87,6 +91,9 @@ export class WalletService {
             [userId, amount, newBalance, orderId]
         );
 
+        // [SEC] S4: Audit Trail
+        await this.logAudit(request, 'WALLET_DEBIT', userId, { amount, orderId });
+
         return { success: true, newBalance };
     }
 
@@ -106,7 +113,27 @@ export class WalletService {
             [userId, amount, newBalance, reason, orderId]
         );
 
+        // [SEC] S4: Audit Trail
+        await this.logAudit(request, 'WALLET_REFUND', userId, { amount, orderId, reason });
+
         this.logger.log(`🔄 Refunded ${amount} to user ${userId} for order ${orderId}`);
         return { success: true, newBalance };
+    }
+
+    private async logAudit(request: any, action: string, targetId: string, metadata: any) {
+        const client = request.dbClient || request.raw?.dbClient;
+        if (!client) return;
+
+        const actorId = request.user?.id || 'system';
+        const tenantId = request.tenantId || 'unknown';
+
+        try {
+            await client.query(
+                'INSERT INTO public.audit_logs (action, actor_id, target_id, metadata, tenant_id) VALUES ($1, $2, $3, $4, $5)',
+                [action, actorId, targetId, JSON.stringify(metadata), tenantId]
+            );
+        } catch (e) {
+            this.logger.error(`Failed to write audit log: ${e.message}`);
+        }
     }
 }

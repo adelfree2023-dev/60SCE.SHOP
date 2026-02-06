@@ -5,7 +5,7 @@ export const UpdateHeroSchema = z.object({
     subtitle: z.string().max(500).optional(),
     imageUrl: z.string().url().or(z.string().length(0)).optional(),
     ctaText: z.string().max(50),
-    ctaUrl: z.string().max(200),
+    ctaUrl: z.string().url().max(200),
 }).strict();
 
 export class UpdateHeroDto {

@@ -11,8 +11,10 @@ import { MailModule } from '../mail/mail.module';
 const dbPool = new Pool({
     connectionString: process.env.DATABASE_URL,
     application_name: 'apex-api',
-    max: 100,
-    min: 50
+    max: 200, // [SEC] Expanded for high parallel test load
+    min: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
 });
 
 @Global()
