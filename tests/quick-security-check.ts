@@ -60,10 +60,18 @@ async function runChecks() {
   console.log('\n🏢 S2: Tenant Isolation');
   try {
     const connectionString = process.env.DATABASE_URL || 'postgresql://apex:@127.0.0.1:5432/apex_v2';
-    console.log(`\n🔌 Connecting to: ${connectionString.replace(/:[^:@]*@/, ':****@')}`);
-    const pool = new Pool({
-      connectionString
-    });
+    const url = new URL(connectionString);
+    const poolConfig = {
+      user: url.username || 'apex',
+      host: url.hostname || '127.0.0.1',
+      database: url.pathname.split('/')[1] || 'apex_v2',
+      password: url.password || '', // 🛡️ Force empty string if missing
+      port: parseInt(url.port || '5432'),
+      ssl: false,
+    };
+
+    console.log(`\n🔌 Connecting as: ${poolConfig.user}@${poolConfig.host}:${poolConfig.port}/${poolConfig.database}`);
+    const pool = new Pool(poolConfig);
 
     // Check for tenant schemas
     const schemaResult = await pool.query(`
