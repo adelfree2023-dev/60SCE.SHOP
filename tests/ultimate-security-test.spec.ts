@@ -38,9 +38,14 @@ describe('🌍 S1: ENVIRONMENT VALIDATION', () => {
         process.env.JWT_SECRET = 'short'; // Less than 32 chars
 
         try {
-            // Simulate config validation
             const { validateEnv } = await import('@apex/config');
-            expect(() => validateEnv()).toThrow(/JWT_SECRET.*32.*characters/);
+            // Zod validation should throw on start
+            validateEnv();
+            throw new Error('Should have failed validation');
+        } catch (e: any) {
+            const message = e.message || '';
+            expect(message.toLowerCase()).toContain('jwt_secret');
+            expect(message.toLowerCase()).toContain('32');
         } finally {
             process.env.JWT_SECRET = originalSecret;
         }

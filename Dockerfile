@@ -1,6 +1,6 @@
 FROM oven/bun:latest AS base
 WORKDIR /app
-RUN apt-get update && apt-get install -y git wget && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git wget net-tools iputils-ping && rm -rf /var/lib/apt/lists/*
 ENV SENTRYCLI_SKIP_DOWNLOAD=1
 
 FROM base AS deps
