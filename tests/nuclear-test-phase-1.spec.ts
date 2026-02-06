@@ -15,6 +15,11 @@ const TEST_CONFIG = {
     API_URL: process.env.API_URL || 'http://127.0.0.1:3001',
 };
 
+// 🌍 [ENV-NORMALIZATION] Align process environment with host-safe configuration
+// This ensures modular services (like RedisService) inherit the correct URL.
+process.env.REDIS_URL = TEST_CONFIG.REDIS_URL;
+process.env.DATABASE_URL = TEST_CONFIG.DATABASE_URL;
+
 describe('☢️ NUCLEAR TEST SUITE', () => {
     let pgPool: Pool;
     let redisService: any;
