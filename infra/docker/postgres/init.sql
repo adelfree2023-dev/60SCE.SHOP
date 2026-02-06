@@ -74,8 +74,23 @@ CREATE TABLE IF NOT EXISTS public.audit_logs (
     payload TEXT,
     response TEXT,
     error TEXT,
+    signature TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- [SEC-L4] Immutable Audit Logs
+CREATE OR REPLACE FUNCTION block_audit_modification()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE EXCEPTION 'Audit logs are immutable.';
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_immutable_audit_logs ON public.audit_logs;
+CREATE TRIGGER trg_immutable_audit_logs
+BEFORE UPDATE OR DELETE ON public.audit_logs
+FOR EACH ROW EXECUTE PROCEDURE block_audit_modification();
+
 
 -- Trigger to update updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
