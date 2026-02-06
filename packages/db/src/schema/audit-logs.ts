@@ -12,5 +12,6 @@ export const auditLogs = pgTable('audit_logs', {
     payload: text('payload'),
     response: text('response'),
     error: text('error'),
-    createdAt: timestamp('created_at').defaultNow(),
+    signature: text('signature'), // [SEC-L4] Forensic Tamper-Evidence
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 });
