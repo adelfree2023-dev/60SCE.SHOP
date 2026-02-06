@@ -20,6 +20,10 @@ describe('☢️ NUCLEAR TEST SUITE', () => {
     let redisService: any;
 
     beforeAll(async () => {
+        // 📋 [DEBUG] Log sanitized config for infrastructure verification
+        console.log('🧪 [DEBUG] Connecting to DB:', TEST_CONFIG.DATABASE_URL.replace(/:[^:@]+@/, ':****@'));
+        console.log('🧪 [DEBUG] Connecting to Redis:', TEST_CONFIG.REDIS_URL);
+
         // 🔒 [SEC-FIX] Standardized secure connection
         pgPool = new Pool({ connectionString: TEST_CONFIG.DATABASE_URL });
 
