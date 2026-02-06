@@ -1,7 +1,4 @@
-
-# إنشاء ملف Quick Security Check
-
-quick_check = '''#!/usr/bin/env bun
+#!/usr/bin/env bun
 /**
  * ⚡ QUICK SECURITY CHECK
  * فحص سريع للتحقق من الحالة الأمنية قبل التشغيل
@@ -10,10 +7,10 @@ quick_check = '''#!/usr/bin/env bun
 import { Pool } from 'pg';
 import * as crypto from 'crypto';
 
-const RED = '\\x1b[31m';
-const GREEN = '\\x1b[32m';
-const YELLOW = '\\x1b[33m';
-const RESET = '\\x1b[0m';
+const RED = '\x1b[31m';
+const GREEN = '\x1b[32m';
+const YELLOW = '\x1b[33m';
+const RESET = '\x1b[0m';
 
 interface CheckResult {
   name: string;
@@ -31,11 +28,11 @@ function addResult(name: string, status: 'PASS' | 'FAIL' | 'WARN', message: stri
 }
 
 async function runChecks() {
-  console.log('\\n🛡️  APEX V2 - Quick Security Check\\n');
+  console.log('\n🛡️  APEX V2 - Quick Security Check\n');
   console.log('='.repeat(50));
 
   // S1: Environment Check
-  console.log('\\n📋 S1: Environment Validation');
+  console.log('\n📋 S1: Environment Validation');
   const requiredEnvVars = [
     'DATABASE_URL',
     'JWT_SECRET',
@@ -60,7 +57,7 @@ async function runChecks() {
   }
 
   // S2: Database Isolation Check
-  console.log('\\n🏢 S2: Tenant Isolation');
+  console.log('\n🏢 S2: Tenant Isolation');
   try {
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL || 'postgresql://apex:apex@localhost:5432/apex'
@@ -97,7 +94,7 @@ async function runChecks() {
   }
 
   // S3: Check for validation files
-  console.log('\\n🛡️  S3: Input Validation');
+  console.log('\n🛡️  S3: Input Validation');
   try {
     const fs = await import('fs');
     const zodPipeExists = fs.existsSync('apps/api/src/common/pipes/zod-validation.pipe.ts');
@@ -112,7 +109,7 @@ async function runChecks() {
   }
 
   // S6: Rate Limiting
-  console.log('\\n🚦 S6: Rate Limiting');
+  console.log('\n🚦 S6: Rate Limiting');
   try {
     const fs = await import('fs');
     const rateLimiterExists = fs.existsSync('packages/security/src/middlewares/rate-limiter.middleware.ts');
@@ -127,7 +124,7 @@ async function runChecks() {
   }
 
   // S7: Encryption
-  console.log('\\n🔐 S7: Encryption');
+  console.log('\n🔐 S7: Encryption');
   try {
     const fs = await import('fs');
     const encryptionExists = fs.existsSync('packages/encryption/src/encryption.service.ts');
@@ -142,7 +139,7 @@ async function runChecks() {
   }
 
   // S8: Security Headers
-  console.log('\\n🌐 S8: Web Security');
+  console.log('\n🌐 S8: Web Security');
   try {
     const fs = await import('fs');
     const helmetExists = fs.existsSync('apps/api/src/common/middleware/helmet.middleware.ts');
@@ -157,7 +154,7 @@ async function runChecks() {
   }
 
   // Summary
-  console.log('\\n' + '='.repeat(50));
+  console.log('\n' + '='.repeat(50));
   console.log('📊 SUMMARY');
   console.log('='.repeat(50));
 
@@ -170,25 +167,18 @@ async function runChecks() {
   console.log(`${YELLOW}⚠️  Warnings: ${warnings}${RESET}`);
 
   const score = (passed / results.length) * 100;
-  console.log(`\\n🎯 Security Score: ${score.toFixed(1)}%`);
+  console.log(`\n🎯 Security Score: ${score.toFixed(1)}%`);
 
   if (failed === 0 && score >= 80) {
-    console.log(`${GREEN}\\n🎉 System is in EXCELLENT security state!${RESET}`);
+    console.log(`${GREEN}\n🎉 System is in EXCELLENT security state!${RESET}`);
     process.exit(0);
   } else if (failed === 0) {
-    console.log(`${YELLOW}\\n⚠️  System is in GOOD state but needs attention${RESET}`);
+    console.log(`${YELLOW}\n⚠️  System is in GOOD state but needs attention${RESET}`);
     process.exit(0);
   } else {
-    console.log(`${RED}\\n❌ System has security issues that must be fixed!${RESET}`);
+    console.log(`${RED}\n❌ System has security issues that must be fixed!${RESET}`);
     process.exit(1);
   }
 }
 
 runChecks().catch(console.error);
-'''
-
-with open('/mnt/kimi/output/quick-security-check.ts', 'w', encoding = 'utf-8') as f:
-f.write(quick_check)
-
-print("✅ تم إنشاء ملف الفحص السريع")
-print("📁 المسار: /mnt/kimi/output/quick-security-check.ts")
