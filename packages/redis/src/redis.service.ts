@@ -35,6 +35,15 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
 
     async onModuleInit() {
+        await this.init();
+    }
+
+    /**
+     * [SEC-L1] Manual Initialization for non-NestJS environments (e.g., tests)
+     * Follows LEGO strategy: Zero glue code required for standalone use.
+     */
+    async init() {
+        if (this.isConnected) return;
         try {
             await this.client.connect();
             this.isConnected = true;
@@ -92,6 +101,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
 
     async ping(): Promise<string> {
+        if (!this.isConnected) {
+            await this.init();
+        }
         return this.client.ping();
     }
 }

@@ -32,6 +32,7 @@ describe('☢️ NUCLEAR TEST SUITE', () => {
 
         const { RedisService } = await import('@apex/redis');
         redisService = new RedisService();
+        await redisService.init();
     });
 
     afterAll(async () => {
