@@ -76,6 +76,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
                 raw.statusCode = status;
                 raw.setHeader('Content-Type', 'application/json');
                 raw.end(JSON.stringify(errorResponse));
+            } else {
+                this.logger.error('CRITICAL: Response object is unusable for status/send');
+                if (typeof raw.end === 'function') raw.end(JSON.stringify(errorResponse));
             }
         } catch (err: any) {
             this.logger.error(`Failed to dispatch error response: ${err.message}`);

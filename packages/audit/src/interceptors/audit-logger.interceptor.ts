@@ -66,36 +66,39 @@ export class AuditLoggerInterceptor implements NestInterceptor {
         );
     }
 
-    private async logAudit(entry: any) {
-        try {
-            // [SEC] S4: Digital Signature (HMAC-SHA256)
-            // Ensures records cannot be modified without detection
-            const signatureContent = `${entry.tenantId}|${entry.userId}|${entry.action}|${entry.status}|${entry.payload}|${entry.ipAddress}`;
-            const signature = crypto
-                .createHmac('sha256', this.auditSecret)
-                .update(signatureContent)
-                .digest('hex');
+    private logAudit(entry: any) {
+        // [SEC-L4] S4: Isolated background task to prevent database congestion from blocking requests
+        setImmediate(async () => {
+            try {
+                // [SEC] S4: Digital Signature (HMAC-SHA256)
+                // Ensures records cannot be modified without detection
+                const signatureContent = `${entry.tenantId}|${entry.userId}|${entry.action}|${entry.status}|${entry.payload}|${entry.ipAddress}`;
+                const signature = crypto
+                    .createHmac('sha256', this.auditSecret)
+                    .update(signatureContent)
+                    .digest('hex');
 
-            await AuditLoggerInterceptor.pool.query(`
-                INSERT INTO public.audit_logs 
-                (tenant_id, user_id, action, status, duration, ip_address, user_agent, payload, response, error, signature, created_at)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
-            `, [
-                entry.tenantId || 'system',
-                entry.userId,
-                entry.action,
-                entry.status,
-                entry.duration,
-                entry.ipAddress,
-                entry.userAgent,
-                entry.payload,
-                entry.response,
-                entry.error,
-                signature
-            ]);
-        } catch (e) {
-            console.error('🔥 AUDIT LOG FAILURE - SECURITY INCIDENT', e);
-        }
+                await AuditLoggerInterceptor.pool.query(`
+                    INSERT INTO public.audit_logs 
+                    (tenant_id, user_id, action, status, duration, ip_address, user_agent, payload, response, error, signature, created_at)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
+                `, [
+                    entry.tenantId || 'system',
+                    entry.userId,
+                    entry.action,
+                    entry.status,
+                    entry.duration,
+                    entry.ipAddress,
+                    entry.userAgent,
+                    entry.payload,
+                    entry.response,
+                    entry.error,
+                    signature
+                ]);
+            } catch (e) {
+                console.error('🔥 AUDIT LOG FAILURE - SECURITY INCIDENT', e);
+            }
+        });
     }
 
     private sanitizePayload(payload: any) {
