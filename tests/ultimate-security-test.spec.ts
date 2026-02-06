@@ -78,7 +78,10 @@ describe('🏢 S2: TENANT ISOLATION (Zero Cross-Tenant Leakage)', () => {
 
     beforeAll(async () => {
         console.log(`🔍 [DEBUG] S2 Connection: ${TEST_CONFIG.DATABASE_URL.replace(/:[^:@]*@/, ':****@')}`);
-        pool = new Pool({ connectionString: TEST_CONFIG.DATABASE_URL });
+        pool = new Pool({
+            connectionString: TEST_CONFIG.DATABASE_URL,
+            password: '', // 🛡️ [EPIC-FIX] Force empty string for SCRAM compatibility
+        });
     });
 
     afterAll(async () => {

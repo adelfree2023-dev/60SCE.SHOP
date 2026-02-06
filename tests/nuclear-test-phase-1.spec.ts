@@ -20,7 +20,10 @@ describe('☢️ NUCLEAR TEST SUITE', () => {
     let redisService: any;
 
     beforeAll(async () => {
-        pgPool = new Pool({ connectionString: TEST_CONFIG.DATABASE_URL });
+        pgPool = new Pool({
+            connectionString: TEST_CONFIG.DATABASE_URL,
+            password: '', // 🛡️ [EPIC-FIX] Force empty string for SCRAM compatibility
+        });
         const { RedisService } = await import('@apex/redis');
         redisService = new RedisService();
     });
