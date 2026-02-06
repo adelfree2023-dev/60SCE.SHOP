@@ -1,93 +1,77 @@
-
-# إنشاء سكربت التشغيل
-
-run_script = '''#!/bin/bash
+#!/bin/bash
 # 🚀 APEX V2 - ULTIMATE SECURITY TEST RUNNER
-# Usage: ./run-security-tests.sh [environment]
+# Usage: ./tests/run-security-tests.sh [environment]
 
 set -e
 
 ENV=${1:-development}
-echo "🛡️  Running Apex V2 Security Tests on: $ENV"
+echo -e "\033[0;32m🛡️  Running Apex V2 Security Tests on: $ENV\033[0m"
 echo "================================================"
 
 # Colors for output
-RED='\\033[0;31m'
-GREEN='\\033[0;32m'
-YELLOW='\\033[1;33m'
-NC='\\033[0m' # No Color
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+BUN_PATH="$HOME/.bun/bin/bun"
 
 # Check prerequisites
-echo "📋 Checking prerequisites..."
+echo -e "📋 Checking prerequisites..."
 
-if ! command -v bun &> /dev/null; then
-    echo "${RED}❌ Bun is not installed${NC}"
+if ! command -v $BUN_PATH &> /dev/null; then
+    echo -e "${RED}❌ Bun is not installed at $BUN_PATH${NC}"
     exit 1
 fi
 
 if ! command -v docker &> /dev/null; then
-    echo "${RED}❌ Docker is not installed${NC}"
+    echo -e "${RED}❌ Docker is not installed${NC}"
     exit 1
 fi
-
-# Check if services are running
-echo "🔍 Checking infrastructure services..."
-
-if ! docker ps | grep -q "apex-postgres"; then
-    echo "${YELLOW}⚠️  PostgreSQL not running. Starting...${NC}"
-    docker compose up -d postgres
-    sleep 5
-fi
-
-if ! docker ps | grep -q "apex-redis"; then
-    echo "${YELLOW}⚠️  Redis not running. Starting...${NC}"
-    docker compose up -d redis
-    sleep 2
-fi
-
-# Verify database connection
-echo "🗄️  Verifying database connection..."
-if ! docker exec apex-postgres pg_isready -U apex > /dev/null 2>&1; then
-    echo "${RED}❌ Cannot connect to PostgreSQL${NC}"
-    exit 1
-fi
-echo "${GREEN}✅ PostgreSQL is ready${NC}"
 
 # Set test environment variables
-export DATABASE_URL="postgresql://apex:apex@localhost:5432/apex"
-export REDIS_URL="redis://localhost:6379"
+export DATABASE_URL="postgresql://apex:apex2026@127.0.0.1:5432/apex"
+export REDIS_URL="redis://127.0.0.1:6379"
 export JWT_SECRET="test-jwt-secret-for-testing-only-must-be-32-chars-long"
 export MINIO_ACCESS_KEY="test-minio-key"
 export MINIO_SECRET_KEY="test-minio-secret"
-export TEST_API_URL="http://localhost:3001"
+export TEST_API_URL="http://127.0.0.1:3001"
+export BUN_BIN="$BUN_PATH"
 
 # Run the tests
 echo ""
-echo "🧪 Running security tests..."
+echo -e "${YELLOW}🧪 Running security tests...${NC}"
 echo "================================================"
 
-bun tests/quick-security-check.ts || {
-    echo "${RED}❌ Quick security check failed${NC}"
+# 1. Quick Check
+$BUN_PATH tests/quick-security-check.ts || {
+    echo -e "${RED}❌ Quick security check failed${NC}"
     exit 1
 }
 
-bun test tests/ultimate-security-test.spec.ts --timeout 60000 || {
-    echo "${RED}❌ Ultimate security tests failed${NC}"
+# 2. Ultimate Security Tests
+$BUN_PATH test tests/ultimate-security-test.spec.ts --timeout 60000 || {
+    echo -e "${RED}❌ Ultimate security tests failed${NC}"
     exit 1
 }
 
-bun test tests/nuclear-test-phase-1.spec.ts --timeout 60000 || {
-    echo "${RED}❌ Nuclear tests failed${NC}"
+# 3. Nuclear Tests
+$BUN_PATH test tests/nuclear-test-phase-1.spec.ts --timeout 60000 || {
+    echo -e "${RED}❌ Nuclear tests failed${NC}"
     exit 1
 }
+
+# 4. Coverage Report
+echo -e "\n${YELLOW}📊 Step 4: Code Coverage Report${NC}"
+$BUN_PATH test --coverage
 
 echo ""
-echo "${GREEN}✅ All security tests passed!${NC}"
+echo -e "${GREEN}✅ All security tests passed!${NC}"
 echo ""
 
 # Generate report
 echo "📊 Generating security report..."
-cat > security-report.md << 'EOF'
+cat > security-report.md << EOF
 # 🛡️ Apex V2 Security Test Report
 
 ## Executive Summary
@@ -117,11 +101,4 @@ EOF
 
 echo "📄 Report saved to: security-report.md"
 echo ""
-echo "${GREEN}🎉 Apex V2 is security-compliant and ready for production!${NC}"
-'''
-
-with open('/mnt/kimi/output/run-security-tests.sh', 'w', encoding='utf-8') as f:
-    f.write(run_script)
-
-print("✅ تم إنشاء سكربت التشغيل")
-print("📁 المسار: /mnt/kimi/output/run-security-tests.sh")
+echo -e "${GREEN}🎉 Apex V2 is security-compliant and ready for production!${NC}"
