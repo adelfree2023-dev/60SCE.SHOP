@@ -31,7 +31,7 @@ fi
 
 # Set test environment variables
 unset DATABASE_URL
-export DATABASE_URL="postgresql://apex:@127.0.0.1:5432/apex_v2"
+export DATABASE_URL="postgresql://apex:apex_secure_pass_2026@127.0.0.1:5432/apex_v2"
 export REDIS_URL="redis://127.0.0.1:6379"
 export JWT_SECRET="test-jwt-secret-for-testing-only-must-be-32-chars-long"
 export MINIO_ACCESS_KEY="test-minio-key"

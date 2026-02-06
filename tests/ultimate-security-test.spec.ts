@@ -77,19 +77,8 @@ describe('🏢 S2: TENANT ISOLATION (Zero Cross-Tenant Leakage)', () => {
     let pool: Pool;
 
     beforeAll(async () => {
-        // 🔒 [SEC-FIX] Robust connection parsing for SCRAM empty password issues
-        const url = new URL(TEST_CONFIG.DATABASE_URL);
-        const poolConfig = {
-            user: url.username || 'apex',
-            host: url.hostname || '127.0.0.1',
-            database: url.pathname.split('/')[1] || 'apex_v2',
-            password: url.password || '', // 🛡️ Force empty string if missing
-            port: parseInt(url.port || '5432'),
-            ssl: false,
-        };
-
-        console.log(`🔍 [DEBUG] S2 Connection: ${poolConfig.user}@${poolConfig.host}:${poolConfig.port}/${poolConfig.database}`);
-        pool = new Pool(poolConfig);
+        // 🔒 [SEC-FIX] Standardized secure connection
+        pool = new Pool({ connectionString: TEST_CONFIG.DATABASE_URL });
     });
 
     afterAll(async () => {

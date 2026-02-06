@@ -20,21 +20,8 @@ describe('☢️ NUCLEAR TEST SUITE', () => {
     let redisService: any;
 
     beforeAll(async () => {
-        // 🔒 [SEC-FIX] Robust connection parsing for SCRAM empty password issues
-        // The pg driver can fail with "client password must be a string" if it's undefined
-        const url = new URL(TEST_CONFIG.DATABASE_URL);
-        const poolConfig = {
-            user: url.username || 'apex',
-            host: url.hostname || '127.0.0.1',
-            database: url.pathname.split('/')[1] || 'apex_v2',
-            password: url.password || '', // 🛡️ Force empty string if missing
-            port: parseInt(url.port || '5432'),
-            ssl: false,
-        };
-
-        console.log(`🔌 [DEBUG] Connecting as: ${poolConfig.user}@${poolConfig.host}:${poolConfig.port}/${poolConfig.database}`);
-
-        pgPool = new Pool(poolConfig);
+        // 🔒 [SEC-FIX] Standardized secure connection
+        pgPool = new Pool({ connectionString: TEST_CONFIG.DATABASE_URL });
         const { RedisService } = await import('@apex/redis');
         redisService = new RedisService();
     });
