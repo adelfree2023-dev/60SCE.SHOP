@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   apex-postgres:
-    image: postgres:15-alpine
+    image: ankane/pgvector:v0.5.1
     container_name: apex-postgres
     restart: always
     environment:
