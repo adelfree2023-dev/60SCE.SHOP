@@ -17,6 +17,7 @@ export async function setSchemaPath(tenantId: string) {
     }
 
     // 🛡️ [SEC-L4] Safe Identifier Quoting using pg-format
+    // We treat the output of format() as raw SQL because it guarantees safety.
     const safeSchema = format('%I', `tenant_${tenantId}`);
     await db.execute(sql.raw(`SET search_path TO ${safeSchema}, public`));
 }
