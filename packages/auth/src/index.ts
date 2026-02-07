@@ -50,7 +50,7 @@ export class TenantScopedGuard implements CanActivate {
     // This ensures the middleware has already validated the tenant
     let tenantContext: TenantContext;
     try {
-      tenantContext = getTenantContext();
+      tenantContext = getCurrentTenantContext();
     } catch {
       throw new ForbiddenException(
         'S2 Violation: No active tenant context found'

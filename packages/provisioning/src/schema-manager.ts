@@ -4,7 +4,6 @@
  */
 
 import { publicPool } from '@apex/db';
-import { sql } from 'drizzle-orm';
 
 export interface SchemaCreationResult {
   schemaName: string;
@@ -98,7 +97,7 @@ export async function verifySchemaExists(
       `,
         [schemaName]
       );
-      tableCount = parseInt(tableCheck.rows[0].count, 10);
+      tableCount = Number.parseInt(tableCheck.rows[0].count, 10);
     }
 
     return {
@@ -150,7 +149,7 @@ export async function dropTenantSchema(
         [schemaName]
       );
 
-      if (parseInt(tableCheck.rows[0].count, 10) > 0) {
+      if (Number.parseInt(tableCheck.rows[0].count, 10) > 0) {
         throw new Error(
           `Schema '${schemaName}' is not empty. Use verifyEmpty=false to force drop.`
         );
@@ -184,11 +183,11 @@ export function sanitizeSchemaName(subdomain: string): string {
   const sanitized = clean.replace(/^[0-9]/, '_$&');
 
   if (sanitized.length < 3) {
-    throw new Error(`Invalid subdomain: too short`);
+    throw new Error('Invalid subdomain: too short');
   }
 
   if (sanitized.length > 50) {
-    throw new Error(`Invalid subdomain: exceeds 50 character limit`);
+    throw new Error('Invalid subdomain: exceeds 50 character limit');
   }
 
   return `tenant_${sanitized}`;

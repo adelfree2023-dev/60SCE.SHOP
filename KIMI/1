@@ -1,0 +1,256 @@
+
+# File: packages / provisioning / src / quota - service.test.ts
+quota_service_test = '''/**
+    * Quota Service Tests
+        * Verifies plan limits and subdomain validation
+            * Coverage Target: 95 % +
+ */
+
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import {
+    checkProvisioningQuota,
+    isFeatureAllowed,
+    getPlanLimits,
+    validateSubdomainAvailability,
+    PLAN_LIMITS,
+    type PlanType
+} from './quota-service.js';
+import { publicDb } from '@apex/db';
+
+vi.mock('@apex/db', () => ({
+    publicDb: {
+        execute: vi.fn(),
+        query: {
+            tenants: {
+                findFirst: vi.fn()
+            }
+        }
+    }
+}));
+
+describe('Quota Service', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    describe('PLAN_LIMITS Configuration', () => {
+        it('should have correct limits for free plan', () => {
+            const limits = PLAN_LIMITS.free;
+            expect(limits.maxProducts).toBe(50);
+            expect(limits.maxStorageGB).toBe(1);
+            expect(limits.maxStaffUsers).toBe(1);
+            expect(limits.maxTenants).toBe(1);
+            expect(limits.allowedFeatures).toContain('products');
+            expect(limits.allowedFeatures).toContain('orders');
+        });
+
+        it('should have correct limits for basic plan', () => {
+            const limits = PLAN_LIMITS.basic;
+            expect(limits.maxProducts).toBe(1000);
+            expect(limits.maxStorageGB).toBe(10);
+            expect(limits.maxOrdersPerMonth).toBe(1000);
+            expect(limits.allowedFeatures).toContain('coupons');
+        });
+
+        it('should have correct limits for pro plan', () => {
+            const limits = PLAN_LIMITS.pro;
+            expect(limits.maxProducts).toBe(10000);
+            expect(limits.maxStorageGB).toBe(100);
+            expect(limits.maxStaffUsers).toBe(10);
+            expect(limits.allowedFeatures).toContain('api_access');
+            expect(limits.allowedFeatures).toContain('webhooks');
+        });
+
+        it('enterprise should allow multi-store', () => {
+            const limits = PLAN_LIMITS.enterprise;
+            expect(limits.maxTenants).toBe(10);
+            expect(limits.maxProducts).toBe(100000);
+            expect(limits.allowedFeatures).toContain('white_label');
+            expect(limits.allowedFeatures).toContain('custom_development');
+        });
+    });
+
+    describe('checkProvisioningQuota', () => {
+        it('should allow basic plan provisioning', async () => {
+            const result = await checkProvisioningQuota('basic');
+            expect(result.allowed).toBe(true);
+            expect(result.limit).toBe(1);
+        });
+
+        it('should check enterprise organization limits', async () => {
+            vi.mocked(publicDb.execute).mockResolvedValue({
+                rows: [{ count: '5' }]
+            } as any);
+
+            const result = await checkProvisioningQuota('enterprise', 'org-123');
+
+            expect(result.allowed).toBe(true);
+            expect(result.currentUsage).toBe(5);
+            expect(result.limit).toBe(10);
+            expect(publicDb.execute).toHaveBeenCalledWith(
+                expect.stringContaining('SELECT COUNT(*)'),
+                expect.anything()
+            );
+        });
+
+        it('should deny if enterprise limit reached', async () => {
+            vi.mocked(publicDb.execute).mockResolvedValue({
+                rows: [{ count: '10' }]
+            } as any);
+
+            const result = await checkProvisioningQuota('enterprise', 'org-123');
+
+            expect(result.allowed).toBe(false);
+            expect(result.reason).toContain('maximum 10 stores');
+            expect(result.currentUsage).toBe(10);
+        });
+
+        it('should deny if over limit', async () => {
+            vi.mocked(publicDb.execute).mockResolvedValue({
+                rows: [{ count: '15' }]
+            } as any);
+
+            const result = await checkProvisioningQuota('enterprise', 'org-123');
+
+            expect(result.allowed).toBe(false);
+            expect(result.reason).toContain('maximum');
+        });
+    });
+
+    describe('isFeatureAllowed', () => {
+        it('should allow basic features on free plan', () => {
+            expect(isFeatureAllowed('free', 'products')).toBe(true);
+            expect(isFeatureAllowed('free', 'orders')).toBe(true);
+            expect(isFeatureAllowed('free', 'basic_analytics')).toBe(true);
+        });
+
+        it('should deny advanced features on free plan', () => {
+            expect(isFeatureAllowed('free', 'api_access')).toBe(false);
+            expect(isFeatureAllowed('free', 'webhooks')).toBe(false);
+            expect(isFeatureAllowed('free', 'multi_warehouse')).toBe(false);
+        });
+
+        it('should allow pro features on pro plan', () => {
+            expect(isFeatureAllowed('pro', 'api_access')).toBe(true);
+            expect(isFeatureAllowed('pro', 'webhooks')).toBe(true);
+            expect(isFeatureAllowed('pro', 'multi_warehouse')).toBe(true);
+            expect(isFeatureAllowed('pro', 'priority_support')).toBe(true);
+        });
+
+        it('should allow all features on enterprise', () => {
+            expect(isFeatureAllowed('enterprise', 'white_label')).toBe(true);
+            expect(isFeatureAllowed('enterprise', 'custom_development')).toBe(true);
+            expect(isFeatureAllowed('enterprise', 'api_access')).toBe(true);
+        });
+
+        it('should deny non-existent features', () => {
+            expect(isFeatureAllowed('enterprise', 'non_existent_feature')).toBe(false);
+            expect(isFeatureAllowed('free', 'non_existent_feature')).toBe(false);
+        });
+    });
+
+    describe('getPlanLimits', () => {
+        it('should return limits for valid plans', () => {
+            const free = getPlanLimits('free');
+            expect(free.maxProducts).toBe(50);
+
+            const basic = getPlanLimits('basic');
+            expect(basic.maxStorageGB).toBe(10);
+
+            const pro = getPlanLimits('pro');
+            expect(pro.maxStaffUsers).toBe(10);
+
+            const enterprise = getPlanLimits('enterprise');
+            expect(enterprise.maxTenants).toBe(10);
+        });
+    });
+
+    describe('validateSubdomainAvailability', () => {
+        it('should validate length constraints (min 3)', async () => {
+            const short = await validateSubdomainAvailability('ab');
+            expect(short.available).toBe(false);
+            expect(short.reason).toContain('3 and 30 characters');
+        });
+
+        it('should validate length constraints (max 30)', async () => {
+            const long = await validateSubdomainAvailability('a'.repeat(31));
+            expect(long.available).toBe(false);
+            expect(long.reason).toContain('3 and 30 characters');
+        });
+
+        it('should validate format (no special chars)', async () => {
+            const invalid = await validateSubdomainAvailability('test@store');
+            expect(invalid.available).toBe(false);
+            expect(invalid.reason).toContain('lowercase letters, numbers, and hyphens');
+        });
+
+        it('should validate format (no uppercase)', async () => {
+            const upper = await validateSubdomainAvailability('TestStore');
+            expect(upper.available).toBe(false);
+        });
+
+        it('should validate format (no spaces)', async () => {
+            const space = await validateSubdomainAvailability('test store');
+            expect(space.available).toBe(false);
+        });
+
+        it('should reject reserved words', async () => {
+            const reserved = await validateSubdomainAvailability('admin');
+            expect(reserved.available).toBe(false);
+            expect(reserved.reason).toContain('reserved');
+        });
+
+        it('should reject www', async () => {
+            const www = await validateSubdomainAvailability('www');
+            expect(www.available).toBe(false);
+        });
+
+        it('should reject api', async () => {
+            const api = await validateSubdomainAvailability('api');
+            expect(api.available).toBe(false);
+        });
+
+        it('should reject taken subdomains', async () => {
+            vi.mocked(publicDb.query.tenants.findFirst).mockResolvedValue({
+                id: 'existing-id',
+                subdomain: 'mystore'
+            } as any);
+
+            const taken = await validateSubdomainAvailability('mystore');
+            expect(taken.available).toBe(false);
+            expect(taken.reason).toContain('already taken');
+        });
+
+        it('should approve available subdomains', async () => {
+            vi.mocked(publicDb.query.tenants.findFirst).mockResolvedValue(undefined);
+
+            const available = await validateSubdomainAvailability('mycoolstore');
+            expect(available.available).toBe(true);
+        });
+
+        it('should approve valid subdomains with hyphens', async () => {
+            vi.mocked(publicDb.query.tenants.findFirst).mockResolvedValue(undefined);
+
+            const hyphen = await validateSubdomainAvailability('my-cool-store');
+            expect(hyphen.available).toBe(true);
+        });
+
+        it('should approve valid subdomains with numbers', async () => {
+            vi.mocked(publicDb.query.tenants.findFirst).mockResolvedValue(undefined);
+
+            const numbers = await validateSubdomainAvailability('store123');
+            expect(numbers.available).toBe(true);
+        });
+
+        it('should handle database errors gracefully', async () => {
+            vi.mocked(publicDb.query.tenants.findFirst).mockRejectedValue(
+                new Error('DB Error')
+            );
+
+            await expect(validateSubdomainAvailability('test')).rejects.toThrow('DB Error');
+        });
+    });
+});
+'''
+
+print(quota_service_test)
