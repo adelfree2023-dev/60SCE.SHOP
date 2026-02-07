@@ -70,9 +70,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         // 3. FASTIFY / NATIVE COMPATIBILITY
         try {
             // [SEC] ARCH-S1: No-Hang Dispatch Logic
-            // In NestJS with Fastify, 'response' is the FastifyReply object.
-            // We use .status() and .send() which are standard.
-            if (typeof response.status === 'function' && typeof response.send === 'function') {
+            // Handle both NestJS-wrapped and raw Fastify reply objects
+            if (response.code && typeof response.code === 'function') {
+                return response.code(status).send(errorResponse);
+            }
+            if (response.status && typeof response.status === 'function') {
                 return response.status(status).send(errorResponse);
             }
 

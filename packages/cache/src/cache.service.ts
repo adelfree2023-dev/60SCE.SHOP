@@ -55,7 +55,12 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
         if (!this.isConnected) return null;
 
         const value = await this.client.get(key);
-        return value ? JSON.parse(value) : null;
+        if (!value) return null;
+        try {
+            return JSON.parse(value);
+        } catch {
+            return value as unknown as T;
+        }
     }
 
     /**

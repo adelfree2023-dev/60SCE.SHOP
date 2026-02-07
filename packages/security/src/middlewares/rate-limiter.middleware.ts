@@ -26,6 +26,13 @@ export class RateLimiterMiddleware implements NestMiddleware {
                 throw new HttpException('Your IP is temporarily blocked due to repeated violations.', HttpStatus.FORBIDDEN);
             }
 
+            // [SEC] S8-002: Explicit CORS rejection for unauthorized origins
+            const origin = req.headers['origin'];
+            if (origin && !this.isAllowedOrigin(origin)) {
+                this.logger.warn(`🚫 [CORS] Rejected unauthorized origin: ${origin}`);
+                throw new HttpException(`Origin ${origin} not allowed by CORS`, HttpStatus.FORBIDDEN);
+            }
+
             const tenantId = req.tenantId || 'anonymous';
             const tier = req.tenantTier || 'basic';
             const limits: Record<string, number> = {
@@ -93,5 +100,26 @@ export class RateLimiterMiddleware implements NestMiddleware {
             // [ARCH-S6] Fail Closed on security infra failure
             throw new Error('Infrastructure Failure: Redis is unreachable or Service is misconfigured.');
         }
+    }
+
+    private isAllowedOrigin(origin: string): boolean {
+        const allowedOrigins = [
+            'https://60sec.shop',
+            'https://www.60sec.shop',
+            'https://api.60sec.shop',
+            /^https?:\/\/([a-z0-9-]+\.)?60sec\.shop$/,
+            'http://localhost:3000',
+            'http://localhost:3001',
+            'http://localhost:3002',
+            'http://127.0.0.1:3000',
+            'http://127.0.0.1:3001',
+            'http://127.0.0.1:3002',
+            /^https?:\/\/([a-z0-9-]+\.)?apex\.localhost$/
+        ];
+
+        return allowedOrigins.some(pattern => {
+            if (typeof pattern === 'string') return pattern === origin;
+            return pattern.test(origin);
+        });
     }
 }
