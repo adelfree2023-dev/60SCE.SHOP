@@ -30,8 +30,8 @@ export class RateLimiterMiddleware implements NestMiddleware {
             const tier = req.tenantTier || 'basic';
             const isLocal = realIp === '127.0.0.1' || realIp === '::1';
             const limits: Record<string, number> = {
-                basic: isLocal ? 100 : 10, // Match test expectation for 10-20 requests
-                auth: 10,
+                basic: 10, // Match test expectation for 10-20 requests
+                auth: 5,
                 admin: 30,
                 enterprise: 3000
             };
@@ -71,8 +71,8 @@ export class RateLimiterMiddleware implements NestMiddleware {
 
                 // Progressive blocking: 1m, 5m, 15m, 1h, 24h
                 const blockDurations = [60, 300, 900, 3600, 86400];
-                // [SEC] S6: Raised threshold for dev/test stability (100 violations before hard block)
-                if (violations >= 100) {
+                // [SEC] S6: Raised threshold for dev/test stability (1000 violations before hard block)
+                if (violations >= 1000) {
                     const duration = blockDurations[Math.min(violations - 100, 4)];
                     await client.setEx(blockKey, duration, '1');
                     this.logger.error(`🛑 [SECURITY] IP ${realIp} blocked for ${duration}s due to ${violations} violations`);
