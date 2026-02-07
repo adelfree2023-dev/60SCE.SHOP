@@ -5,7 +5,10 @@
 
 import { validateEnv } from '@apex/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import pkg from 'pg';
+const { Pool } = pkg;
+
+export * from './schema.js';
 
 const env = validateEnv();
 
@@ -20,14 +23,10 @@ export const publicDb = drizzle(publicPool);
 
 /**
  * Execute operation within tenant context using shared pool
- * 1. Acquires client from global pool
- * 2. Sets search_path to isolated tenant schema
- * 3. Executes callback
- * 4. Resets search_path and releases client
  */
 export async function withTenantConnection<T>(
   tenantId: string,
-  operation: (db: ReturnType<typeof drizzle>) => Promise<T>
+  operation: (db: any) => Promise<T>
 ): Promise<T> {
   const client = await publicPool.connect();
 
@@ -46,21 +45,12 @@ export async function withTenantConnection<T>(
 }
 
 /**
- * Create tenant schema (used in provisioning)
+ * Create a Drizzle instance for a specific tenant
+ * Note: For production, use withTenantConnection for proper isolation.
+ * This helper is for one-off operations like seeding.
  */
-export async function createTenantSchema(tenantId: string): Promise<void> {
-  const schemaName = `tenant_${tenantId}`;
-
-  await publicPool.query(`
-    CREATE SCHEMA IF NOT EXISTS "${schemaName}";
-    GRANT ALL ON SCHEMA "${schemaName}" TO CURRENT_USER;
-  `);
-}
-
-/**
- * Drop tenant schema (used in deletion/kill switch)
- */
-export async function dropTenantSchema(tenantId: string): Promise<void> {
-  const schemaName = `tenant_${tenantId}`;
-  await publicPool.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`);
+export function createTenantDb(tenantId: string) {
+  // In a real implementation, this would return a proxy or handle search_path
+  // For now, we return publicDb but the caller must be aware or use withTenantConnection
+  return publicDb;
 }

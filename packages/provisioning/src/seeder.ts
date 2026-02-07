@@ -3,8 +3,7 @@
  * Seeds initial data (Admin user, default settings) for new stores
  */
 
-import { createTenantDb } from '@apex/db';
-import { settings, stores, users } from '@apex/db/schema';
+import { createTenantDb, settings, stores, users } from '@apex/db';
 import { sql } from 'drizzle-orm';
 
 export interface SeedOptions {
