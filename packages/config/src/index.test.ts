@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { validateEnv, EnvSchema, enforceS1Compliance } from './index';
+import { validateEnv, enforceS1Compliance } from './index';
 
 describe('S1: Environment Verification Protocol', () => {
     const originalEnv = process.env;
@@ -19,7 +19,7 @@ describe('S1: Environment Verification Protocol', () => {
 
     describe('JWT_SECRET Validation', () => {
         it('should crash with S1 Violation when JWT_SECRET is missing', () => {
-            delete process.env.JWT_SECRET;
+            process.env.JWT_SECRET = undefined;
 
             expect(() => validateEnv()).toThrow('S1 Violation');
             expect(() => validateEnv()).toThrow('Required');
@@ -75,7 +75,7 @@ describe('S1: Environment Verification Protocol', () => {
 
     describe('enforceS1Compliance', () => {
         it('should call process.exit(1) on validation failure', () => {
-            delete process.env.JWT_SECRET;
+            process.env.JWT_SECRET = undefined;
 
             expect(() => enforceS1Compliance()).toThrow('process.exit called');
             expect(process.exit).toHaveBeenCalledWith(1);

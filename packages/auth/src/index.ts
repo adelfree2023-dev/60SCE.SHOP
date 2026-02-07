@@ -4,15 +4,15 @@
  */
 
 import {
+    type CanActivate,
+    type ExecutionContext,
+    ForbiddenException,
     Injectable,
-    CanActivate,
-    ExecutionContext,
     UnauthorizedException,
-    ForbiddenException
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
-import { getTenantContext } from '@apex/middleware';
+import type { JwtService } from '@nestjs/jwt';
+import type { Request } from 'express';
+import { type TenantContext, getTenantContext } from '@apex/middleware';
 
 export interface AuthenticatedRequest extends Request {
     user: {
@@ -48,10 +48,10 @@ export class TenantScopedGuard implements CanActivate {
 
         // 3. S2: Retrieve verified tenant context from middleware
         // This ensures the middleware has already validated the tenant
-        let tenantContext;
+        let tenantContext: TenantContext;
         try {
             tenantContext = getTenantContext();
-        } catch (e) {
+        } catch {
             throw new ForbiddenException('S2 Violation: No active tenant context found');
         }
 
