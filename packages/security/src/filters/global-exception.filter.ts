@@ -69,11 +69,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
         // 3. FASTIFY / NATIVE COMPATIBILITY
         try {
-            if (response.status && typeof response.status === 'function') {
+            // [SEC] ARCH-S1: No-Hang Dispatch Logic
+            // In NestJS with Fastify, 'response' is the FastifyReply object.
+            // We use .status() and .send() which are standard.
+            if (typeof response.status === 'function' && typeof response.send === 'function') {
                 return response.status(status).send(errorResponse);
             }
 
-            // Fallback for raw response objects (if any)
+            // Fallback for cases where the response might be raw (unlikely in NestJS but safe)
             const raw = response.raw || response;
             if (raw && typeof raw.setHeader === 'function' && !raw.writableEnded) {
                 raw.statusCode = status;
@@ -81,7 +84,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
                 raw.end(JSON.stringify(errorResponse));
             }
         } catch (err: any) {
-            this.logger.error(`Failed to dispatch error response: ${err.message}`);
+            this.logger.error(`Failed to dispatch error response [${requestId}]: ${err.message}`);
         }
     }
 }

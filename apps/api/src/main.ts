@@ -13,7 +13,12 @@ async function bootstrap() {
     // [EPIC1-001] Performance: Use Fastify for high throughput with Proxy Trust
     const app = await NestFactory.create<NestFastifyApplication>(
         AppModule,
-        new FastifyAdapter({ trustProxy: true })
+        new FastifyAdapter({
+            trustProxy: true,
+            // [S3/S9] Payload Exhaustion Resilience: Strict Header Limits
+            maxHeaderSize: 4096, // 4KB (Test probe is 8KB)
+            bodyLimit: 1024 * 1024, // 1MB
+        })
     );
 
     // [FIX] Cast to any to bypass strict FastifyPluginCallback mismatch with NestJS wrapper
@@ -81,7 +86,8 @@ async function bootstrap() {
                 callback(null, true);
             } else {
                 logger.warn(`🚫 CORS BLOCKED: ${origin}`);
-                callback(new Error('Not allowed by CORS'), false);
+                // [S8-002] Explicit rejection for security tests
+                callback(new ForbiddenException(`Origin ${origin} not allowed by CORS`), false);
             }
         },
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

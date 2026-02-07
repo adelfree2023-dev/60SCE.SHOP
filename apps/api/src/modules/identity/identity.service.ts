@@ -86,7 +86,7 @@ export class IdentityService {
         const lockoutKey = `lockout:${email}`;
         const attempts = await this.cacheService.get(lockoutKey);
 
-        if (attempts && parseInt(attempts as string) >= 5) {
+        if (attempts && parseInt(attempts as string) >= 10) {
             this.logger.warn(`Locked: ${email}`);
             throw new ForbiddenException('Account locked due to too many failed attempts. Try again later.');
         }

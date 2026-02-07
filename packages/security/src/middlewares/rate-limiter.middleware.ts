@@ -28,9 +28,8 @@ export class RateLimiterMiddleware implements NestMiddleware {
 
             const tenantId = req.tenantId || 'anonymous';
             const tier = req.tenantTier || 'basic';
-            const isLocal = realIp === '127.0.0.1' || realIp === '::1';
             const limits: Record<string, number> = {
-                basic: 10, // Match test expectation for 10-20 requests
+                basic: 10,
                 auth: 5,
                 admin: 30,
                 enterprise: 3000
