@@ -25,7 +25,7 @@ const tests = [
             JWT_SECRET: '',
             DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
             MINIO_ACCESS_KEY: 'test',
-            MINIO_SECRET_KEY: 'test123'
+            MINIO_SECRET_KEY: 'minioadmin123'
         },
         shouldCrash: true,
         expectedError: 'S1 Violation'
@@ -36,7 +36,7 @@ const tests = [
             JWT_SECRET: 'short_secret',
             DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
             MINIO_ACCESS_KEY: 'test',
-            MINIO_SECRET_KEY: 'test123'
+            MINIO_SECRET_KEY: 'minioadmin123'
         },
         shouldCrash: true,
         expectedError: 'at least 32 characters'
@@ -47,7 +47,7 @@ const tests = [
             JWT_SECRET: 'invalid_secret_with_@_symbol!',
             DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
             MINIO_ACCESS_KEY: 'test',
-            MINIO_SECRET_KEY: 'test123'
+            MINIO_SECRET_KEY: 'minioadmin123'
         },
         shouldCrash: true,
         expectedError: 'invalid characters'
@@ -58,7 +58,7 @@ const tests = [
             JWT_SECRET: 'valid_secret_key_minimum_32_chars_long',
             DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
             MINIO_ACCESS_KEY: 'test',
-            MINIO_SECRET_KEY: 'test123'
+            MINIO_SECRET_KEY: 'minioadmin123'
         },
         shouldCrash: false,
         expectedError: null
