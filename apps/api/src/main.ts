@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger, ValidationPipe, ForbiddenException } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
@@ -87,7 +87,7 @@ async function bootstrap() {
             } else {
                 logger.warn(`🚫 CORS BLOCKED: ${origin}`);
                 // [S8-002] Explicit rejection for security tests
-                callback(new ForbiddenException(`Origin ${origin} not allowed by CORS`), false);
+                callback(new Error(`Origin ${origin} not allowed by CORS`), false);
             }
         },
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
