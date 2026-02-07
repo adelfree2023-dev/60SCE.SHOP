@@ -172,22 +172,19 @@ export async function dropTenantSchema(
  * @returns Valid schema name (tenant_{sanitized})
  */
 export function sanitizeSchemaName(subdomain: string): string {
-  // Remove any non-alphanumeric characters except underscore and hyphen
-  const sanitized = subdomain
-    .toLowerCase()
-    .replace(/[^a-z0-9_-]/g, '')
-    .replace(/^[0-9]/, '_$&'); // Schema names can't start with number
+  const clean = subdomain.toLowerCase().trim();
 
-  if (!sanitized || sanitized.length < 3) {
-    throw new Error(
-      `Invalid subdomain '${subdomain}': too short or invalid characters`
-    );
+  // Strict S2 Validation: Reject special characters
+  if (!/^[a-z0-9_-]+$/.test(clean)) {
+    throw new Error('Invalid subdomain');
   }
 
-  if (sanitized.length > 50) {
-    throw new Error(
-      `Invalid subdomain '${subdomain}': exceeds 50 character limit`
-    );
+  // PG identifiers can't start with numbers (but we prefix with tenant_ so it's usually safe, 
+  // but let's keep the internal logic consistent)
+  const sanitized = clean.replace(/^[0-9]/, '_$&');
+
+  if (sanitized.length < 3 || sanitized.length > 50) {
+    throw new Error('Invalid subdomain');
   }
 
   return `tenant_${sanitized}`;
