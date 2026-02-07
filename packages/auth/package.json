@@ -1,30 +1,30 @@
 {
-    "name": "@apex/auth",
-    "version": "1.0.0",
-    "type": "module",
-    "exports": {
-        ".": {
-            "import": "./dist/index.js",
-            "types": "./dist/index.d.ts"
-        }
-    },
-    "scripts": {
-        "build": "bun build ./src/index.ts --outdir ./dist --target node",
-        "test": "vitest run",
-        "lint": "biome check ."
-    },
-    "dependencies": {
-        "@nestjs/common": "^10.0.0",
-        "@nestjs/jwt": "^10.2.0",
-        "@nestjs/passport": "^10.0.0",
-        "passport": "^0.7.0",
-        "passport-jwt": "^4.0.0",
-        "@apex/config": "workspace:*",
-        "@apex/db": "workspace:*",
-        "@apex/middleware": "workspace:*"
-    },
-    "devDependencies": {
-        "@types/passport-jwt": "^3.0.0",
-        "bun-types": "latest"
+  "name": "@apex/auth",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target node",
+    "test": "vitest run",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/passport": "^10.0.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.0",
+    "@apex/config": "workspace:*",
+    "@apex/db": "workspace:*",
+    "@apex/middleware": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/passport-jwt": "^3.0.0",
+    "bun-types": "latest"
+  }
 }

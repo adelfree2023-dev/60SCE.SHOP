@@ -1,5 +1,5 @@
 {
-  "name": "@apex/config",
+  "name": "@apex/audit",
   "version": "1.0.0",
   "type": "module",
   "exports": {
@@ -9,14 +9,15 @@
     }
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node",
+    "build": "bun build ./src/audit.service.ts --outdir ./dist --target node",
     "test": "vitest run",
-    "test:unit": "vitest run --coverage",
     "lint": "biome check .",
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "zod": "^3.22.4"
+    "@nestjs/common": "^10.0.0",
+    "@apex/db": "workspace:*",
+    "@apex/middleware": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

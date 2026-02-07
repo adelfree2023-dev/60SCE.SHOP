@@ -1,29 +1,29 @@
 {
-    "name": "@apex/db",
-    "version": "1.0.0",
-    "type": "module",
-    "exports": {
-        ".": {
-            "import": "./dist/index.js",
-            "types": "./dist/index.d.ts"
-        }
-    },
-    "scripts": {
-        "build": "bun build ./src/index.ts --outdir ./dist --target node",
-        "db:generate": "drizzle-kit generate:pg",
-        "db:migrate": "bun run src/migrate.ts",
-        "db:studio": "drizzle-kit studio",
-        "test": "vitest run",
-        "lint": "biome check ."
-    },
-    "dependencies": {
-        "drizzle-orm": "^0.29.0",
-        "pg": "^8.11.0",
-        "@apex/config": "workspace:*"
-    },
-    "devDependencies": {
-        "@types/pg": "^8.10.0",
-        "drizzle-kit": "^0.20.0",
-        "bun-types": "latest"
+  "name": "@apex/db",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target node",
+    "db:generate": "drizzle-kit generate:pg",
+    "db:migrate": "bun run src/migrate.ts",
+    "db:studio": "drizzle-kit studio",
+    "test": "vitest run",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.29.0",
+    "pg": "^8.11.0",
+    "@apex/config": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.10.0",
+    "drizzle-kit": "^0.20.0",
+    "bun-types": "latest"
+  }
 }

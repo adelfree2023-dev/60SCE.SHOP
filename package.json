@@ -1,27 +1,27 @@
 {
-    "name": "apex-v2",
-    "private": true,
-    "workspaces": [
-        "apps/*",
-        "packages/*"
-    ],
-    "scripts": {
-        "build": "turbo run build",
-        "dev": "turbo run dev",
-        "lint": "turbo run lint",
-        "test": "turbo run test",
-        "test:unit": "turbo run test:unit",
-        "format": "biome format --write .",
-        "check": "biome check --apply .",
-        "provision:tenant": "bun run --filter @apex/provisioning-cli"
-    },
-    "devDependencies": {
-        "@biomejs/biome": "^1.5.0",
-        "turbo": "^1.11.0"
-    },
-    "packageManager": "bun@1.0.0",
-    "engines": {
-        "bun": ">=1.0.0",
-        "node": ">=20.0.0"
-    }
+  "name": "apex-v2",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:unit": "turbo run test:unit",
+    "format": "biome format --write .",
+    "check": "biome check --apply .",
+    "provision:tenant": "bun run --filter @apex/provisioning-cli"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.0",
+    "turbo": "^1.11.0"
+  },
+  "packageManager": "bun@1.0.0",
+  "engines": {
+    "bun": ">=1.0.0",
+    "node": ">=20.0.0"
+  }
 }

@@ -1,3 +1,14 @@
-export * from './tenant-context.js';
-export * from './tenant-resolution.js';
-export * from './connection-context.js';
+/**
+ * @apex/middleware
+ * S2 Protocol: Tenant Resolution & Context Management
+ */
+
+export {
+  getCurrentTenantContext,
+  getCurrentTenantId,
+  hasTenantContext,
+  requireTenantContext,
+  runWithTenantContext,
+  type TenantContext,
+  tenantStorage,
+} from './connection-context.js';

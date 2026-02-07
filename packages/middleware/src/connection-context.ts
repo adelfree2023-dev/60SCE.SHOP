@@ -1,27 +1,76 @@
-import { getTenantContext } from './tenant-context.js';
+/**
+ * Connection Context Management
+ * S2 Protocol: Tenant Isolation via AsyncLocalStorage
+ * 
+ * Provides request-scoped tenant context for database operations
+ */
+
+import { AsyncLocalStorage } from 'async_hooks';
 
 /**
- * Utility to get the current tenant ID from request context.
- * Used primarily for database schema switching.
- * @throws if outside context
+ * Tenant context stored per request
  */
-export function getCurrentTenantId(): string {
-    const context = getTenantContext();
-    return context.tenantId;
+export interface TenantContext {
+    readonly tenantId: string;
+    readonly subdomain: string;
+    readonly plan: 'free' | 'basic' | 'pro' | 'enterprise';
+    readonly features: readonly string[];
+    readonly createdAt: Date;
 }
 
 /**
- * Utility to get the current tenant subdomain from request context.
+ * AsyncLocalStorage instance for tenant context
+ * Usage: tenantStorage.run(context, () => { /* your code */ })
  */
-export function getCurrentSubdomain(): string {
-    const context = getTenantContext();
-    return context.subdomain;
+export const tenantStorage = new AsyncLocalStorage<TenantContext>();
+
+/**
+ * Execute function within a tenant context
+ * @param context - Tenant context to set
+ * @param callback - Function to execute within context
+ * @returns Result of callback
+ */
+export function runWithTenantContext<T>(
+    context: TenantContext,
+    callback: () => T | Promise<T>
+): T | Promise<T> {
+    return tenantStorage.run(context, callback);
 }
 
 /**
- * Helper to determine the database schema name for the current tenant.
+ * Get current tenant ID from AsyncLocalStorage
+ * @returns Tenant ID or null if not in context
  */
-export function getTenantSchemaName(): string {
-    const tenantId = getCurrentTenantId();
-    return `tenant_${tenantId}`;
+export function getCurrentTenantId(): string | null {
+    const store = tenantStorage.getStore();
+    return store?.tenantId ?? null;
+}
+
+/**
+ * Get full tenant context from AsyncLocalStorage
+ * @returns TenantContext or null if not in context
+ */
+export function getCurrentTenantContext(): TenantContext | null {
+    return tenantStorage.getStore() ?? null;
+}
+
+/**
+ * Require tenant context - throws if not present
+ * @returns TenantContext (guaranteed)
+ * @throws Error if no tenant context found
+ */
+export function requireTenantContext(): TenantContext {
+    const context = getCurrentTenantContext();
+    if (!context) {
+        throw new Error('S2 Violation: Tenant context required but not found. Ensure middleware is configured.');
+    }
+    return context;
+}
+
+/**
+ * Check if currently running within a tenant context
+ * @returns boolean indicating context presence
+ */
+export function hasTenantContext(): boolean {
+    return tenantStorage.getStore() !== undefined;
 }
