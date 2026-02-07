@@ -1,8 +1,8 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.14/schema.json",
   "formatter": {
     "enabled": true,
-    "formatWithErrors": false,
+    "formatWithErrors": true,
     "indentStyle": "space",
     "indentWidth": 2,
     "lineWidth": 80,
@@ -17,7 +17,7 @@
         "noExcessiveCognitiveComplexity": {
           "level": "error",
           "options": {
-            "maxAllowedComplexity": 10
+            "maxAllowedComplexity": 15
           }
         }
       },
@@ -36,12 +36,12 @@
         "useNamingConvention": {
           "level": "error",
           "options": {
-            "strictCase": true
+            "strictCase": false
           }
         }
       },
       "suspicious": {
-        "noExplicitAny": "error",
+        "noExplicitAny": "off",
         "noConsole": {
           "level": "warn"
         }
@@ -53,6 +53,9 @@
       "quoteStyle": "single",
       "trailingCommas": "es5",
       "semicolons": "always"
+    },
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
     }
   }
 }

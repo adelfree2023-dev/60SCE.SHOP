@@ -1,7 +1,7 @@
 /**
  * Connection Context Management
  * S2 Protocol: Tenant Isolation via AsyncLocalStorage
- * 
+ *
  * Provides request-scoped tenant context for database operations
  */
 
@@ -11,16 +11,16 @@ import { AsyncLocalStorage } from 'async_hooks';
  * Tenant context stored per request
  */
 export interface TenantContext {
-    readonly tenantId: string;
-    readonly subdomain: string;
-    readonly plan: 'free' | 'basic' | 'pro' | 'enterprise';
-    readonly features: readonly string[];
-    readonly createdAt: Date;
+  readonly tenantId: string;
+  readonly subdomain: string;
+  readonly plan: 'free' | 'basic' | 'pro' | 'enterprise';
+  readonly features: readonly string[];
+  readonly createdAt: Date;
 }
 
 /**
  * AsyncLocalStorage instance for tenant context
- * Usage: tenantStorage.run(context, () => { /* your code */ })
+ * Usage: tenantStorage.run(context, () => { console.log('code'); });
  */
 export const tenantStorage = new AsyncLocalStorage<TenantContext>();
 
@@ -31,10 +31,10 @@ export const tenantStorage = new AsyncLocalStorage<TenantContext>();
  * @returns Result of callback
  */
 export function runWithTenantContext<T>(
-    context: TenantContext,
-    callback: () => T | Promise<T>
+  context: TenantContext,
+  callback: () => T | Promise<T>
 ): T | Promise<T> {
-    return tenantStorage.run(context, callback);
+  return tenantStorage.run(context, callback);
 }
 
 /**
@@ -42,8 +42,8 @@ export function runWithTenantContext<T>(
  * @returns Tenant ID or null if not in context
  */
 export function getCurrentTenantId(): string | null {
-    const store = tenantStorage.getStore();
-    return store?.tenantId ?? null;
+  const store = tenantStorage.getStore();
+  return store?.tenantId ?? null;
 }
 
 /**
@@ -51,7 +51,7 @@ export function getCurrentTenantId(): string | null {
  * @returns TenantContext or null if not in context
  */
 export function getCurrentTenantContext(): TenantContext | null {
-    return tenantStorage.getStore() ?? null;
+  return tenantStorage.getStore() ?? null;
 }
 
 /**
@@ -60,11 +60,13 @@ export function getCurrentTenantContext(): TenantContext | null {
  * @throws Error if no tenant context found
  */
 export function requireTenantContext(): TenantContext {
-    const context = getCurrentTenantContext();
-    if (!context) {
-        throw new Error('S2 Violation: Tenant context required but not found. Ensure middleware is configured.');
-    }
-    return context;
+  const context = getCurrentTenantContext();
+  if (!context) {
+    throw new Error(
+      'S2 Violation: Tenant context required but not found. Ensure middleware is configured.'
+    );
+  }
+  return context;
 }
 
 /**
@@ -72,5 +74,5 @@ export function requireTenantContext(): TenantContext {
  * @returns boolean indicating context presence
  */
 export function hasTenantContext(): boolean {
-    return tenantStorage.getStore() !== undefined;
+  return tenantStorage.getStore() !== undefined;
 }
