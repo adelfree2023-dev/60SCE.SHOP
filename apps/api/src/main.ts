@@ -16,6 +16,7 @@ async function bootstrap() {
         new FastifyAdapter({
             trustProxy: true,
             // [S3/S9] Payload Exhaustion Resilience: Strict Header Limits
+            // @ts-ignore: Fastify supports maxHeaderSize but NestJS types might be outdated
             maxHeaderSize: 4096, // 4KB (Test probe is 8KB)
             bodyLimit: 1024 * 1024, // 1MB
         })
