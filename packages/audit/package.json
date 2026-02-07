@@ -9,7 +9,7 @@
     }
   },
   "scripts": {
-    "build": "bun build ./src/audit.service.ts --outdir ./dist --target node",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node",
     "test": "vitest run",
     "lint": "biome check .",
     "clean": "rm -rf dist"
