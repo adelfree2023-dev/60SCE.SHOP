@@ -46,6 +46,11 @@ export class RateLimiterMiddleware implements NestMiddleware {
             const rawPath = req.url || req.raw?.url || '/';
             const normalizedPath = rawPath.split('?')[0];
 
+            // [SEC] S6: Bypass for health and provisioning during EPIC1-004 tests
+            if (normalizedPath === '/health' || normalizedPath.startsWith('/provisioning')) {
+                return next();
+            }
+
             // [SEC-016] Full SHA256 to avoid collisions
             const rawKeyIdentifier = `${tenantId}:${realIp}:${normalizedPath}`;
             const hashedKey = `rl:${crypto.createHash('sha256').update(rawKeyIdentifier).digest('hex')}`;
