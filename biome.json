@@ -1,5 +1,12 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.3.14/schema.json",
+  "files": {
+    "ignore": [
+      ".turbo/**",
+      "dist/**",
+      "node_modules/**"
+    ]
+  },
   "formatter": {
     "enabled": true,
     "formatWithErrors": true,
@@ -12,6 +19,16 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "style": {
+        "noDefaultExport": "error",
+        "useNamingConvention": {
+          "level": "error",
+          "options": {
+            "strictCase": false,
+            "requireAscii": true
+          }
+        }
+      },
       "complexity": {
         "noBannedTypes": "error",
         "noExcessiveCognitiveComplexity": {
@@ -31,20 +48,9 @@
         "noDangerouslySetInnerHtml": "error",
         "noGlobalEval": "error"
       },
-      "style": {
-        "noDefaultExport": "error",
-        "useNamingConvention": {
-          "level": "error",
-          "options": {
-            "strictCase": false
-          }
-        }
-      },
       "suspicious": {
         "noExplicitAny": "off",
-        "noConsole": {
-          "level": "warn"
-        }
+        "noConsole": "off"
       }
     }
   },

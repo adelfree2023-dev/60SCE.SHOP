@@ -103,16 +103,16 @@ for (const test of tests) {
       test.expectedError &&
       fullOutput.includes(test.expectedError)
     ) {
-      console.log(`   Result: ✅ PASS (Crashed with expected error)`);
+      console.log('   Result: ✅ PASS (Crashed with expected error)');
       console.log(
         `   Error: ${fullOutput.split('S1 Violation')[1]?.substring(0, 100) || 'N/A'}`
       );
       passed++;
     } else if (!test.shouldCrash) {
-      console.log(`   Result: ✅ PASS (Started successfully)`);
+      console.log('   Result: ✅ PASS (Started successfully)');
       passed++;
     } else {
-      console.log(`   Result: ❌ FAIL (Crashed but with wrong error)`);
+      console.log('   Result: ❌ FAIL (Crashed but with wrong error)');
       console.log(`   Output: ${fullOutput.substring(0, 200)}`);
       failed++;
     }
@@ -125,7 +125,7 @@ for (const test of tests) {
   }
 }
 
-console.log('\n' + '='.repeat(50));
+console.log(`\n${'='.repeat(50)}`);
 console.log(`📊 Results: ${passed} passed, ${failed} failed`);
 console.log('='.repeat(50));
 
