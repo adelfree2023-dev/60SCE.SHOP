@@ -45,14 +45,14 @@ export class ProvisioningService {
             }
 
             // 1. Register in Public Schema
+            const id = crypto.randomUUID();
             const encryptedEmail = await this.encryptionService.encryptDbValue(ownerEmail);
-            const tenantRes = await client.query(
-                `INSERT INTO public.tenants (name, subdomain, owner_email, status)
-                 VALUES ($1, $2, $3, 'provisioning')
-                 RETURNING id`,
-                [dto.name || subdomain, subdomain, encryptedEmail]
+            await client.query(
+                `INSERT INTO public.tenants (id, name, subdomain, owner_email, status)
+                 VALUES ($1, $2, $3, $4, 'provisioning')`,
+                [id, dto.name || subdomain, subdomain, encryptedEmail]
             );
-            const tenantId = tenantRes.rows[0].id;
+            const tenantId = id;
 
             // 2. Create Isolated Schema
             await this.schemaCreator.createSchema(tenantId);

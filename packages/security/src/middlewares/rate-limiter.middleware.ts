@@ -36,9 +36,9 @@ export class RateLimiterMiddleware implements NestMiddleware {
             const tenantId = req.tenantId || 'anonymous';
             const tier = req.tenantTier || 'basic';
             const limits: Record<string, number> = {
-                basic: 10,
-                auth: 5,
-                admin: 30,
+                basic: 30, // [SEC] S6: Raised to 30 to allow 10-attempt lockout tests + pre-checks
+                auth: 10,
+                admin: 50,
                 enterprise: 3000
             };
             const limit = limits[tier] || limits.basic;
