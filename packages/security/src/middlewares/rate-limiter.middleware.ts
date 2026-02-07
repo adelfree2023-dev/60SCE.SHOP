@@ -51,6 +51,8 @@ export class RateLimiterMiddleware implements NestMiddleware {
                 return next();
             }
 
+            this.logger.log(`[DEBUG] RateLimit: Tier=${tier}, Limit=${limit}`);
+
             // [SEC-016] Full SHA256 to avoid collisions
             const rawKeyIdentifier = `${tenantId}:${realIp}:${normalizedPath}`;
             const hashedKey = `rl:${crypto.createHash('sha256').update(rawKeyIdentifier).digest('hex')}`;

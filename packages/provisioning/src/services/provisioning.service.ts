@@ -46,6 +46,9 @@ export class ProvisioningService {
 
             // 1. Register in Public Schema
             const id = crypto.randomUUID();
+            this.logger.error(`[DEBUG] Generated ID: ${id} (Type: ${typeof id})`);
+            if (!id) throw new Error('Failed to generate UUID');
+
             const encryptedEmail = await this.encryptionService.encryptDbValue(ownerEmail);
             await client.query(
                 `INSERT INTO public.tenants (id, name, subdomain, owner_email, status)
