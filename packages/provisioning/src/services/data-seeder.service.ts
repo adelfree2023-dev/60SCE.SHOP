@@ -35,21 +35,15 @@ export class DataSeederService {
                 throw new Error(`Blueprint ${blueprintId} not found`);
             }
 
-            // Create core tables
+            // 1. Create core tables in parallel
             await this.createCoreTables(schemaName);
 
-            // Seed products
-            if (blueprint.products && blueprint.products.length > 0) {
-                await this.seedProducts(schemaName, blueprint.products);
-            }
-
-            // Seed pages
-            if (blueprint.pages && blueprint.pages.length > 0) {
-                await this.seedPages(schemaName, blueprint.pages);
-            }
-
-            // Seed settings
-            await this.seedSettings(schemaName, blueprint.settings || {});
+            // 2. Seed data in parallel (after tables exist)
+            await Promise.all([
+                blueprint.products?.length > 0 ? this.seedProducts(schemaName, blueprint.products) : Promise.resolve(),
+                blueprint.pages?.length > 0 ? this.seedPages(schemaName, blueprint.pages) : Promise.resolve(),
+                this.seedSettings(schemaName, blueprint.settings || {})
+            ]);
 
             const duration = Date.now() - startTime;
             this.logger.log(`✅ Data seeded in ${duration}ms for ${tenantId}`);
@@ -65,54 +59,53 @@ export class DataSeederService {
     private async createCoreTables(schemaName: string): Promise<void> {
         const schema = sql.identifier(schemaName);
 
-        // Products table
-        await this.db.execute(sql`
-            CREATE TABLE IF NOT EXISTS ${schema}.products (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                name VARCHAR(255) NOT NULL,
-                slug VARCHAR(255) UNIQUE NOT NULL,
-                description TEXT,
-                price DECIMAL(10,2) NOT NULL,
-                stock INTEGER DEFAULT 0,
-                images JSONB DEFAULT '[]'::jsonb,
-                status VARCHAR(50) DEFAULT 'published',
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        // Orders table
-        await this.db.execute(sql`
-            CREATE TABLE IF NOT EXISTS ${schema}.orders (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                customer_id UUID,
-                status VARCHAR(50) DEFAULT 'pending',
-                total DECIMAL(10,2) NOT NULL,
-                items JSONB NOT NULL,
-                shipping_address JSONB,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        // Pages table
-        await this.db.execute(sql`
-            CREATE TABLE IF NOT EXISTS ${schema}.pages (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                title VARCHAR(255) NOT NULL,
-                slug VARCHAR(255) UNIQUE NOT NULL,
-                content TEXT,
-                published BOOLEAN DEFAULT false,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        // Settings table
-        await this.db.execute(sql`
-            CREATE TABLE IF NOT EXISTS ${schema}.settings (
-                key VARCHAR(255) PRIMARY KEY,
-                value TEXT NOT NULL
-            )
-        `);
+        await Promise.all([
+            // Products table
+            this.db.execute(sql`
+                CREATE TABLE IF NOT EXISTS ${schema}.products (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    name VARCHAR(255) NOT NULL,
+                    slug VARCHAR(255) UNIQUE NOT NULL,
+                    description TEXT,
+                    price DECIMAL(10,2) NOT NULL,
+                    stock INTEGER DEFAULT 0,
+                    images JSONB DEFAULT '[]'::jsonb,
+                    status VARCHAR(50) DEFAULT 'published',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                )
+            `),
+            // Orders table
+            this.db.execute(sql`
+                CREATE TABLE IF NOT EXISTS ${schema}.orders (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    customer_id UUID,
+                    status VARCHAR(50) DEFAULT 'pending',
+                    total DECIMAL(10,2) NOT NULL,
+                    items JSONB NOT NULL,
+                    shipping_address JSONB,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                )
+            `),
+            // Pages table
+            this.db.execute(sql`
+                CREATE TABLE IF NOT EXISTS ${schema}.pages (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    title VARCHAR(255) NOT NULL,
+                    slug VARCHAR(255) UNIQUE NOT NULL,
+                    content TEXT,
+                    published BOOLEAN DEFAULT false,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                )
+            `),
+            // Settings table
+            this.db.execute(sql`
+                CREATE TABLE IF NOT EXISTS ${schema}.settings (
+                    key VARCHAR(255) PRIMARY KEY,
+                    value TEXT NOT NULL
+                )
+            `)
+        ]);
 
         this.logger.debug(`Core tables created for ${schemaName}`);
     }
