@@ -25,7 +25,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
         ConfigModule.forRoot({ isGlobal: true }),
         ThrottlerModule.forRoot([{
             ttl: 60000,
-            limit: 10,
+            limit: 1000, // [SEC] S6: Raised to 1000 to allow full security test suite runs
         }]),
         EventEmitterModule.forRoot(),
         RedisModule,
